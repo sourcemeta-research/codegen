@@ -1,0 +1,25 @@
+function(sourcemeta_googlebenchmark)
+  cmake_parse_arguments(SOURCEMETA_GOOGLEBENCHMARK ""
+    "NAMESPACE;PROJECT" "SOURCES" ${ARGN})
+
+  if(NOT SOURCEMETA_GOOGLEBENCHMARK_PROJECT)
+    message(FATAL_ERROR "You must pass the project name using the PROJECT option")
+  endif()
+  if(NOT SOURCEMETA_GOOGLEBENCHMARK_SOURCES)
+    message(FATAL_ERROR "You must pass the sources list using the SOURCES option")
+  endif()
+
+  if(SOURCEMETA_GOOGLEBENCHMARK_NAMESPACE)
+    set(TARGET_NAME "${SOURCEMETA_GOOGLEBENCHMARK_NAMESPACE}_${SOURCEMETA_GOOGLEBENCHMARK_PROJECT}_benchmark")
+    set(FOLDER_NAME "${SOURCEMETA_GOOGLEBENCHMARK_NAMESPACE}/${SOURCEMETA_GOOGLEBENCHMARK_PROJECT}")
+  else()
+    set(TARGET_NAME "${SOURCEMETA_GOOGLEBENCHMARK_PROJECT}_benchmark")
+    set(FOLDER_NAME "${SOURCEMETA_GOOGLEBENCHMARK_PROJECT}")
+  endif()
+
+  add_executable("${TARGET_NAME}" ${SOURCEMETA_GOOGLEBENCHMARK_SOURCES})
+  sourcemeta_add_default_options(PRIVATE ${TARGET_NAME})
+  set_target_properties("${TARGET_NAME}" PROPERTIES FOLDER "${FOLDER_NAME}")
+  target_link_libraries("${TARGET_NAME}" PRIVATE benchmark::benchmark)
+  target_link_libraries("${TARGET_NAME}" PRIVATE benchmark::benchmark_main)
+endfunction()
