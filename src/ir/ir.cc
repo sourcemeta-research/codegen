@@ -1,61 +1,11 @@
 #include <sourcemeta/codegen/ir.h>
+#include <sourcemeta/codegen/ir_group.h>
 
 #include <sourcemeta/core/alterschema.h>
 
-#include <algorithm>  // std::ranges::sort
-#include <functional> // std::reference_wrapper
-#include <map>        // std::map
-#include <vector>     // std::vector
+#include <algorithm> // std::ranges::sort
 
 namespace sourcemeta::codegen {
-
-struct InstanceLocationEntry {
-  std::reference_wrapper<const sourcemeta::core::PointerTemplate>
-      instance_location;
-  std::reference_wrapper<const sourcemeta::core::SchemaFrame::Location>
-      location;
-};
-
-using InstanceLocationMap = std::map<sourcemeta::core::PointerTemplate,
-                                     std::vector<InstanceLocationEntry>>;
-
-static auto group(const sourcemeta::core::SchemaFrame &frame)
-    -> InstanceLocationMap {
-  InstanceLocationMap trivial;
-  InstanceLocationMap non_trivial;
-
-  for (const auto &[key, location] : frame.locations()) {
-    if (location.type ==
-            sourcemeta::core::SchemaFrame::LocationType::Resource ||
-        location.type ==
-            sourcemeta::core::SchemaFrame::LocationType::Subschema) {
-      for (const auto &instance_location : frame.instance_locations(location)) {
-        auto &target{instance_location.trivial() ? trivial : non_trivial};
-        target[instance_location].emplace_back(InstanceLocationEntry{
-            .instance_location = instance_location, .location = location});
-      }
-    }
-  }
-
-  for (const auto &[non_trivial_location, entries] : non_trivial) {
-    auto matched{false};
-    for (auto &[trivial_location, trivial_entries] : trivial) {
-      if (non_trivial_location.matches(trivial_location)) {
-        for (const auto &entry : entries) {
-          trivial_entries.emplace_back(entry);
-        }
-
-        matched = true;
-      }
-    }
-
-    if (!matched) {
-      trivial[non_trivial_location] = entries;
-    }
-  }
-
-  return trivial;
-}
 
 auto compile(
     const sourcemeta::core::JSON &input,

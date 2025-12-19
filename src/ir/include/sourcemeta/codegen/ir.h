@@ -5,6 +5,8 @@
 #include <sourcemeta/codegen/ir_export.h>
 #endif
 
+#include <sourcemeta/codegen/ir_group.h>
+
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
 #include <sourcemeta/core/jsonschema.h>
