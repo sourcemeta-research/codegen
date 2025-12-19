@@ -39,7 +39,12 @@ static auto scalar_type_to_typescript(IRScalarType type) -> std::string {
 
 auto typescript(std::ostream &output, const IRResult &result,
                 const std::optional<std::string> &default_namespace) -> void {
+  bool first{true};
   for (const auto &entity : result) {
+    if (!first) {
+      output << "\n";
+    }
+    first = false;
     std::visit(
         [&output, &default_namespace](const auto &entry) {
           using T = std::decay_t<decltype(entry)>;

@@ -39,6 +39,7 @@ TEST(TypeScript, test_2) {
   typescript(output, result, "MyObject");
 
   const auto expected{R"TS(export type foo = string;
+
 export interface MyObject {
   foo?: foo;
 }
