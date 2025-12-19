@@ -90,7 +90,13 @@ auto compile(
       sourcemeta::core::SchemaFrame::Mode::Instances};
   frame.analyse(schema, walker, resolver);
 
+  // --------------------------------------------------------------------------
+  // (4) Re-group all entries based on their instance locations
+  // --------------------------------------------------------------------------
+
   const auto instance_to_locations{group(frame)};
+
+  // ----- TODO
 
   IRResult result;
 
@@ -183,15 +189,16 @@ auto compile(
     }
   }
 
-  // Sort by pointer template (longer paths come first, so dependencies
-  // appear before their parents)
-  const auto get_pointer{
-      [](const auto &entry) -> const sourcemeta::core::PointerTemplate & {
-        return entry.pointer;
-      }};
+  // --------------------------------------------------------------------------
+  // (6) Sort entries so that dependencies come before dependents
+  // --------------------------------------------------------------------------
+
   std::ranges::sort(
-      result, [&get_pointer](const IREntity &a, const IREntity &b) -> bool {
-        return std::visit(get_pointer, b) < std::visit(get_pointer, a);
+      result, [](const IREntity &left, const IREntity &right) -> bool {
+        return std::visit([](const auto &entry) { return entry.pointer; },
+                          right) <
+               std::visit([](const auto &entry) { return entry.pointer; },
+                          left);
       });
 
   return result;
