@@ -58,17 +58,28 @@ private:
 auto main(int argc, char **argv) -> int {
   testing::InitGoogleTest(&argc, argv);
 
-  const std::filesystem::path cases_path{TYPESCRIPT_E2E_PATH};
-  for (const auto &entry : std::filesystem::directory_iterator(cases_path)) {
-    if (!entry.is_directory()) {
+  const std::filesystem::path e2e_path{TYPESCRIPT_E2E_PATH};
+  for (const auto &dialect_entry :
+       std::filesystem::directory_iterator(e2e_path)) {
+    if (!dialect_entry.is_directory()) {
       continue;
     }
 
-    const auto test_name{entry.path().filename().string()};
-    testing::RegisterTest("TypeScriptE2E", test_name.c_str(), nullptr, nullptr,
-                          __FILE__, __LINE__, [=]() -> TypeScriptE2ETest * {
-                            return new TypeScriptE2ETest(entry.path());
-                          });
+    const auto dialect_name{dialect_entry.path().filename().string()};
+    for (const auto &case_entry :
+         std::filesystem::directory_iterator(dialect_entry.path())) {
+      if (!case_entry.is_directory()) {
+        continue;
+      }
+
+      const auto case_name{case_entry.path().filename().string()};
+      const auto test_name{dialect_name + "/" + case_name};
+      testing::RegisterTest("TypeScriptE2E", test_name.c_str(), nullptr,
+                            nullptr, __FILE__, __LINE__,
+                            [=]() -> TypeScriptE2ETest * {
+                              return new TypeScriptE2ETest(case_entry.path());
+                            });
+    }
   }
 
   return RUN_ALL_TESTS();
