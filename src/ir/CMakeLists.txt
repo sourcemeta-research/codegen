@@ -10,3 +10,5 @@ target_link_libraries(sourcemeta_codegen_ir PUBLIC
   sourcemeta::core::json)
 target_link_libraries(sourcemeta_codegen_ir PUBLIC
   sourcemeta::core::jsonschema)
+target_link_libraries(sourcemeta_codegen_ir PRIVATE
+  sourcemeta::core::alterschema)

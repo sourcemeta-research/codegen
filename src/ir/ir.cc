@@ -1,5 +1,7 @@
 #include <sourcemeta/codegen/ir.h>
 
+#include <sourcemeta/core/alterschema.h>
+
 #include <algorithm>  // std::ranges::sort
 #include <functional> // std::reference_wrapper
 #include <map>        // std::map
@@ -8,15 +10,38 @@
 namespace sourcemeta::codegen {
 
 auto compile(
-    const sourcemeta::core::JSON &schema,
+    const sourcemeta::core::JSON &input,
     const sourcemeta::core::SchemaWalker &walker,
     const sourcemeta::core::SchemaResolver &resolver,
     const std::optional<sourcemeta::core::JSON::String> &default_dialect,
     const std::optional<sourcemeta::core::JSON::String> &default_id)
     -> IRResult {
+  // --------------------------------------------------------------------------
+  // (1) Bundle the schema to resolve external references
+  // --------------------------------------------------------------------------
+
+  auto schema{sourcemeta::core::bundle(input, walker, resolver, default_dialect,
+                                       default_id)};
+
+  // --------------------------------------------------------------------------
+  // (2) Canonicalize the schema for easier analysis
+  // --------------------------------------------------------------------------
+
+  sourcemeta::core::SchemaTransformer canonicalizer;
+  sourcemeta::core::add(canonicalizer,
+                        sourcemeta::core::AlterSchemaMode::StaticAnalysis);
+  canonicalizer.apply(
+      schema, walker, resolver,
+      [](const auto &, const auto, const auto, const auto &) {});
+
+  // --------------------------------------------------------------------------
+  // (3) Frame the resulting schema with instance location information
+  // --------------------------------------------------------------------------
+
   sourcemeta::core::SchemaFrame frame{
       sourcemeta::core::SchemaFrame::Mode::Instances};
-  frame.analyse(schema, walker, resolver, default_dialect, default_id);
+  frame.analyse(schema, walker, resolver);
+
   std::map<sourcemeta::core::PointerTemplate,
            std::vector<std::reference_wrapper<
                const sourcemeta::core::SchemaFrame::Location>>>
