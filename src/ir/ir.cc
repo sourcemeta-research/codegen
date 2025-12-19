@@ -9,6 +9,47 @@
 
 namespace sourcemeta::codegen {
 
+struct InstanceLocationEntry {
+  std::reference_wrapper<const sourcemeta::core::PointerTemplate>
+      instance_location;
+  std::reference_wrapper<const sourcemeta::core::SchemaFrame::Location>
+      location;
+};
+
+using InstanceLocationMap = std::map<sourcemeta::core::PointerTemplate,
+                                     std::vector<InstanceLocationEntry>>;
+
+static auto group(const sourcemeta::core::SchemaFrame &frame)
+    -> InstanceLocationMap {
+  InstanceLocationMap trivial;
+  InstanceLocationMap non_trivial;
+
+  for (const auto &[key, location] : frame.locations()) {
+    if (location.type ==
+            sourcemeta::core::SchemaFrame::LocationType::Resource ||
+        location.type ==
+            sourcemeta::core::SchemaFrame::LocationType::Subschema) {
+      for (const auto &instance_location : frame.instance_locations(location)) {
+        auto &target{instance_location.trivial() ? trivial : non_trivial};
+        target[instance_location].emplace_back(InstanceLocationEntry{
+            .instance_location = instance_location, .location = location});
+      }
+    }
+  }
+
+  for (const auto &[non_trivial_location, entries] : non_trivial) {
+    for (auto &[trivial_location, trivial_entries] : trivial) {
+      if (non_trivial_location.matches(trivial_location)) {
+        for (const auto &entry : entries) {
+          trivial_entries.emplace_back(entry);
+        }
+      }
+    }
+  }
+
+  return trivial;
+}
+
 auto compile(
     const sourcemeta::core::JSON &input,
     const sourcemeta::core::SchemaWalker &walker,
@@ -42,34 +83,21 @@ auto compile(
       sourcemeta::core::SchemaFrame::Mode::Instances};
   frame.analyse(schema, walker, resolver);
 
-  std::map<sourcemeta::core::PointerTemplate,
-           std::vector<std::reference_wrapper<
-               const sourcemeta::core::SchemaFrame::Location>>>
-      instance_to_locations;
-  for (const auto &[key, location] : frame.locations()) {
-    if (location.type ==
-            sourcemeta::core::SchemaFrame::LocationType::Resource ||
-        location.type ==
-            sourcemeta::core::SchemaFrame::LocationType::Subschema) {
-      for (const auto &instance_location : frame.instance_locations(location)) {
-        instance_to_locations[instance_location].emplace_back(
-            std::cref(location));
-      }
-    }
-  }
+  const auto instance_to_locations{group(frame)};
 
   IRResult result;
 
   // Process each instance location group
-  for (const auto &[instance_location, locations] : instance_to_locations) {
-    for (const auto &location_ref : locations) {
-      const auto &location{location_ref.get()};
-      const auto &subschema{sourcemeta::core::get(schema, location.pointer)};
+  for (const auto &[instance_location, entries] : instance_to_locations) {
+    for (const auto &entry : entries) {
+      const auto &subschema{
+          sourcemeta::core::get(schema, entry.location.get().pointer)};
       if (!subschema.is_object()) {
         continue;
       }
 
-      const auto vocabularies{frame.vocabularies(location, resolver)};
+      const auto vocabularies{
+          frame.vocabularies(entry.location.get(), resolver)};
 
       if (subschema.defines("type")) {
         const auto &type_result{walker("type", vocabularies)};
