@@ -1,0 +1,10 @@
+{
+  "name": "@sourcemeta/codegen",
+  "version": "0.0.0",
+  "private": true,
+  "author": "Sourcemeta",
+  "license": "AGPL-3.0",
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}
