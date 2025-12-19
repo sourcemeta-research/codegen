@@ -38,12 +38,19 @@ static auto group(const sourcemeta::core::SchemaFrame &frame)
   }
 
   for (const auto &[non_trivial_location, entries] : non_trivial) {
+    auto matched{false};
     for (auto &[trivial_location, trivial_entries] : trivial) {
       if (non_trivial_location.matches(trivial_location)) {
         for (const auto &entry : entries) {
           trivial_entries.emplace_back(entry);
         }
+
+        matched = true;
       }
+    }
+
+    if (!matched) {
+      trivial[non_trivial_location] = entries;
     }
   }
 
