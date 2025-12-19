@@ -14,9 +14,9 @@ target_link_libraries(sourcemeta_codegen_typescript_e2e_unit
 target_link_libraries(sourcemeta_codegen_typescript_e2e_unit
   PRIVATE sourcemeta::codegen::typescript)
 target_compile_definitions(sourcemeta_codegen_typescript_e2e_unit
-  PRIVATE TYPESCRIPT_CASES_PATH="${CMAKE_CURRENT_SOURCE_DIR}/cases")
+  PRIVATE TYPESCRIPT_E2E_PATH="${CMAKE_CURRENT_SOURCE_DIR}/e2e")
 
-file(GLOB TYPESCRIPT_CASE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/cases/*")
+file(GLOB TYPESCRIPT_CASE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/e2e/*")
 foreach(CASE_DIRECTORY ${TYPESCRIPT_CASE_DIRECTORIES})
   if(IS_DIRECTORY ${CASE_DIRECTORY})
     get_filename_component(CASE_NAME ${CASE_DIRECTORY} NAME)

@@ -58,7 +58,7 @@ private:
 auto main(int argc, char **argv) -> int {
   testing::InitGoogleTest(&argc, argv);
 
-  const std::filesystem::path cases_path{TYPESCRIPT_CASES_PATH};
+  const std::filesystem::path cases_path{TYPESCRIPT_E2E_PATH};
   for (const auto &entry : std::filesystem::directory_iterator(cases_path)) {
     if (!entry.is_directory()) {
       continue;
