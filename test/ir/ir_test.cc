@@ -40,10 +40,11 @@ TEST(IR, test_2) {
 
   EXPECT_EQ(result.size(), 2);
 
+  const sourcemeta::core::PointerTemplate foo_pointer{
+      sourcemeta::core::to_pointer("/foo")};
+
   EXPECT_TRUE(std::holds_alternative<IRScalar>(result.at(0)));
-  EXPECT_EQ(
-      std::get<IRScalar>(result.at(0)).pointer,
-      sourcemeta::core::PointerTemplate{sourcemeta::core::Pointer{"foo"}});
+  EXPECT_EQ(std::get<IRScalar>(result.at(0)).pointer, foo_pointer);
   EXPECT_EQ(std::get<IRScalar>(result.at(0)).value, IRScalarType::String);
 
   EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(1)));
@@ -52,7 +53,6 @@ TEST(IR, test_2) {
   EXPECT_TRUE(std::get<IRObject>(result.at(1)).members.contains("foo"));
   EXPECT_FALSE(std::get<IRObject>(result.at(1)).members.at("foo").required);
   EXPECT_FALSE(std::get<IRObject>(result.at(1)).members.at("foo").immutable);
-  EXPECT_EQ(
-      std::get<IRObject>(result.at(1)).members.at("foo").pointer,
-      sourcemeta::core::PointerTemplate{sourcemeta::core::Pointer{"foo"}});
+  EXPECT_EQ(std::get<IRObject>(result.at(1)).members.at("foo").pointer,
+            foo_pointer);
 }

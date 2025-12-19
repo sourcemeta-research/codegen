@@ -5,6 +5,24 @@
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonschema.h>
 
+#define EXPECT_GROUP(instance_location, expected_size)                         \
+  {                                                                            \
+    const sourcemeta::core::PointerTemplate key{                               \
+        sourcemeta::core::to_pointer((instance_location))};                    \
+    EXPECT_TRUE(result.contains(key));                                         \
+    EXPECT_EQ(result.at(key).size(), (expected_size));                         \
+  }
+
+#define EXPECT_GROUP_ENTRY(instance_location, index, schema_location)          \
+  {                                                                            \
+    const sourcemeta::core::PointerTemplate key{                               \
+        sourcemeta::core::to_pointer((instance_location))};                    \
+    const auto expected_pointer{                                               \
+        sourcemeta::core::to_pointer((schema_location))};                      \
+    EXPECT_EQ(result.at(key).at((index)).location.get().pointer,               \
+              expected_pointer);                                               \
+  }
+
 TEST(IRGroup, simple_string_schema) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -19,12 +37,9 @@ TEST(IRGroup, simple_string_schema) {
   const auto result{sourcemeta::codegen::group(frame)};
 
   EXPECT_EQ(result.size(), 1);
-  EXPECT_TRUE(result.contains(sourcemeta::core::PointerTemplate{}));
 
-  const auto &entries{result.at(sourcemeta::core::PointerTemplate{})};
-  EXPECT_EQ(entries.size(), 1);
-  EXPECT_TRUE(entries.at(0).instance_location.get().empty());
-  EXPECT_TRUE(entries.at(0).location.get().pointer.empty());
+  EXPECT_GROUP("", 1);
+  EXPECT_GROUP_ENTRY("", 0, "");
 }
 
 TEST(IRGroup, object_with_property) {
@@ -47,19 +62,11 @@ TEST(IRGroup, object_with_property) {
 
   EXPECT_EQ(result.size(), 2);
 
-  const sourcemeta::core::PointerTemplate foo_template{
-      sourcemeta::core::Pointer{"foo"}};
-  EXPECT_TRUE(result.contains(sourcemeta::core::PointerTemplate{}));
-  EXPECT_TRUE(result.contains(foo_template));
+  EXPECT_GROUP("", 1);
+  EXPECT_GROUP("/foo", 1);
 
-  const auto &root_entries{result.at(sourcemeta::core::PointerTemplate{})};
-  EXPECT_EQ(root_entries.size(), 1);
-  EXPECT_TRUE(root_entries.at(0).location.get().pointer.empty());
-
-  const auto &foo_entries{result.at(foo_template)};
-  EXPECT_EQ(foo_entries.size(), 1);
-  const sourcemeta::core::Pointer expected_foo_pointer{"properties", "foo"};
-  EXPECT_EQ(foo_entries.at(0).location.get().pointer, expected_foo_pointer);
+  EXPECT_GROUP_ENTRY("", 0, "");
+  EXPECT_GROUP_ENTRY("/foo", 0, "/properties/foo");
 }
 
 TEST(IRGroup, object_with_multiple_properties) {
@@ -81,27 +88,13 @@ TEST(IRGroup, object_with_multiple_properties) {
 
   EXPECT_EQ(result.size(), 3);
 
-  const sourcemeta::core::PointerTemplate name_template{
-      sourcemeta::core::Pointer{"name"}};
-  const sourcemeta::core::PointerTemplate age_template{
-      sourcemeta::core::Pointer{"age"}};
-  EXPECT_TRUE(result.contains(sourcemeta::core::PointerTemplate{}));
-  EXPECT_TRUE(result.contains(name_template));
-  EXPECT_TRUE(result.contains(age_template));
+  EXPECT_GROUP("", 1);
+  EXPECT_GROUP("/name", 1);
+  EXPECT_GROUP("/age", 1);
 
-  const auto &root_entries{result.at(sourcemeta::core::PointerTemplate{})};
-  EXPECT_EQ(root_entries.size(), 1);
-  EXPECT_TRUE(root_entries.at(0).location.get().pointer.empty());
-
-  const auto &name_entries{result.at(name_template)};
-  EXPECT_EQ(name_entries.size(), 1);
-  const sourcemeta::core::Pointer expected_name_pointer{"properties", "name"};
-  EXPECT_EQ(name_entries.at(0).location.get().pointer, expected_name_pointer);
-
-  const auto &age_entries{result.at(age_template)};
-  EXPECT_EQ(age_entries.size(), 1);
-  const sourcemeta::core::Pointer expected_age_pointer{"properties", "age"};
-  EXPECT_EQ(age_entries.at(0).location.get().pointer, expected_age_pointer);
+  EXPECT_GROUP_ENTRY("", 0, "");
+  EXPECT_GROUP_ENTRY("/name", 0, "/properties/name");
+  EXPECT_GROUP_ENTRY("/age", 0, "/properties/age");
 }
 
 TEST(IRGroup, nested_object) {
@@ -127,28 +120,11 @@ TEST(IRGroup, nested_object) {
 
   EXPECT_EQ(result.size(), 3);
 
-  const sourcemeta::core::PointerTemplate address_template{
-      sourcemeta::core::Pointer{"address"}};
-  const sourcemeta::core::PointerTemplate city_template{
-      sourcemeta::core::Pointer{"address", "city"}};
-  EXPECT_TRUE(result.contains(sourcemeta::core::PointerTemplate{}));
-  EXPECT_TRUE(result.contains(address_template));
-  EXPECT_TRUE(result.contains(city_template));
+  EXPECT_GROUP("", 1);
+  EXPECT_GROUP("/address", 1);
+  EXPECT_GROUP("/address/city", 1);
 
-  const auto &root_entries{result.at(sourcemeta::core::PointerTemplate{})};
-  EXPECT_EQ(root_entries.size(), 1);
-  EXPECT_TRUE(root_entries.at(0).location.get().pointer.empty());
-
-  const auto &address_entries{result.at(address_template)};
-  EXPECT_EQ(address_entries.size(), 1);
-  const sourcemeta::core::Pointer expected_address_pointer{"properties",
-                                                           "address"};
-  EXPECT_EQ(address_entries.at(0).location.get().pointer,
-            expected_address_pointer);
-
-  const auto &city_entries{result.at(city_template)};
-  EXPECT_EQ(city_entries.size(), 1);
-  const sourcemeta::core::Pointer expected_city_pointer{"properties", "address",
-                                                        "properties", "city"};
-  EXPECT_EQ(city_entries.at(0).location.get().pointer, expected_city_pointer);
+  EXPECT_GROUP_ENTRY("", 0, "");
+  EXPECT_GROUP_ENTRY("/address", 0, "/properties/address");
+  EXPECT_GROUP_ENTRY("/address/city", 0, "/properties/address/properties/city");
 }
