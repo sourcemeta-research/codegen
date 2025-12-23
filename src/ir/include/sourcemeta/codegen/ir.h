@@ -24,16 +24,16 @@ namespace sourcemeta::codegen {
 enum class IRScalarType : std::uint8_t { String };
 
 /// @ingroup ir
+struct IRScalar {
+  sourcemeta::core::PointerTemplate instance_location;
+  IRScalarType value;
+};
+
+/// @ingroup ir
 struct IRObjectValue {
   bool required;
   bool immutable;
   sourcemeta::core::PointerTemplate instance_location;
-};
-
-/// @ingroup ir
-struct IRScalar {
-  sourcemeta::core::PointerTemplate instance_location;
-  IRScalarType value;
 };
 
 /// @ingroup ir
