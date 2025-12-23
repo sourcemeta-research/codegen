@@ -1,12 +1,75 @@
 #include <sourcemeta/codegen/ir.h>
-#include <sourcemeta/codegen/ir_group.h>
 
 #include <sourcemeta/core/alterschema.h>
 
 #include <algorithm> // std::ranges::sort
 #include <cassert>   // assert
+#include <set>       // std::set
 
 namespace sourcemeta::codegen {
+
+static auto
+schema_to_ir(const sourcemeta::core::JSON &schema,
+             const sourcemeta::core::SchemaFrame &frame,
+             const sourcemeta::core::SchemaFrame::Location &location)
+    -> std::optional<IREntity> {
+  const auto &subschema{sourcemeta::core::get(schema, location.pointer)};
+
+  const auto &instance_locations{frame.instance_locations(location)};
+  assert(!instance_locations.empty());
+  const auto &instance_location{instance_locations.front()};
+
+  if (!subschema.is_object() || !subschema.defines("type")) {
+    return std::nullopt;
+  }
+
+  const auto &type_value{subschema.at("type")};
+  if (!type_value.is_string()) {
+    return std::nullopt;
+  }
+
+  const auto type_string{type_value.to_string()};
+
+  if (type_string == "string") {
+    return IRScalar{.pointer = instance_location,
+                    .value = IRScalarType::String};
+  }
+
+  if (type_string == "object") {
+    std::unordered_map<sourcemeta::core::JSON::String, IRObjectValue> members;
+
+    if (subschema.defines("properties")) {
+      const auto &properties{subschema.at("properties")};
+
+      std::set<std::string> required_set;
+      if (subschema.defines("required")) {
+        for (const auto &item : subschema.at("required").as_array()) {
+          required_set.insert(item.to_string());
+        }
+      }
+
+      for (const auto &[property_name, property_schema, property_hash] :
+           properties.as_object()) {
+        static_cast<void>(property_hash);
+        auto property_instance_location{instance_location};
+        property_instance_location.emplace_back(
+            sourcemeta::core::Pointer::Token{property_name});
+
+        IRObjectValue member_value{.required =
+                                       required_set.contains(property_name),
+                                   .immutable = false,
+                                   .pointer = property_instance_location};
+
+        members.emplace(property_name, std::move(member_value));
+      }
+    }
+
+    return IRObject{.pointer = instance_location,
+                    .members = std::move(members)};
+  }
+
+  return std::nullopt;
+}
 
 auto compile(
     const sourcemeta::core::JSON &input,
@@ -43,101 +106,22 @@ auto compile(
   frame.analyse(schema, walker, resolver);
 
   // --------------------------------------------------------------------------
-  // (4) Re-group all entries based on their instance locations
+  // (4) XXXXX
   // --------------------------------------------------------------------------
-
-  const auto instance_to_locations{group(frame)};
-
-  // ----- TODO
 
   IRResult result;
 
-  // Process each instance location group
-  for (const auto &[instance_location, entry] : instance_to_locations) {
-    for (const auto &group_location : entry.locations) {
-      const auto &subschema{
-          sourcemeta::core::get(schema, group_location.location.get().pointer)};
-      if (!subschema.is_object()) {
-        continue;
-      }
+  for (const auto &[key, location] : frame.locations()) {
+    if (location.type !=
+            sourcemeta::core::SchemaFrame::LocationType::Resource &&
+        location.type !=
+            sourcemeta::core::SchemaFrame::LocationType::Subschema) {
+      continue;
+    }
 
-      const auto vocabularies{
-          frame.vocabularies(group_location.location.get(), resolver)};
-
-      if (subschema.defines("type")) {
-        const auto &type_result{walker("type", vocabularies)};
-        if (type_result.type !=
-            sourcemeta::core::SchemaKeywordType::Assertion) {
-          continue;
-        }
-
-        const auto &type_value{subschema.at("type")};
-        if (!type_value.is_string()) {
-          continue;
-        }
-
-        const auto &type_string{type_value.to_string()};
-
-        if (type_string == "string") {
-          result.emplace_back(IRScalar{.pointer = instance_location,
-                                       .value = IRScalarType::String});
-        } else if (type_string == "object") {
-          IRObject object;
-          object.pointer = instance_location;
-
-          // Find child instance locations (one property token deeper)
-          for (const auto &[child_instance, child_entry] :
-               instance_to_locations) {
-            if (!child_instance.trivial() || child_instance.empty()) {
-              continue;
-            }
-
-            // Check if child is exactly one property token deeper
-            auto child_size{
-                std::distance(child_instance.begin(), child_instance.end())};
-            auto parent_size{std::distance(instance_location.begin(),
-                                           instance_location.end())};
-            if (child_size != parent_size + 1) {
-              continue;
-            }
-
-            // Verify parent prefix matches
-            auto matches{true};
-            auto child_iter{child_instance.begin()};
-            for (const auto &parent_token : instance_location) {
-              if (*child_iter != parent_token) {
-                matches = false;
-                break;
-              }
-              ++child_iter;
-            }
-
-            if (!matches) {
-              continue;
-            }
-
-            // Get the property name from the last token
-            const auto &last_token{*child_instance.rbegin()};
-            if (!std::holds_alternative<sourcemeta::core::Pointer::Token>(
-                    last_token)) {
-              continue;
-            }
-
-            const auto &property_token{
-                std::get<sourcemeta::core::Pointer::Token>(last_token)};
-            if (!property_token.is_property()) {
-              continue;
-            }
-
-            object.members.emplace(property_token.to_property(),
-                                   IRObjectValue{.required = false,
-                                                 .immutable = false,
-                                                 .pointer = child_instance});
-          }
-
-          result.emplace_back(std::move(object));
-        }
-      }
+    auto entry{schema_to_ir(schema, frame, location)};
+    if (entry.has_value()) {
+      result.push_back(std::move(entry.value()));
     }
   }
 
