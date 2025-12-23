@@ -5,4 +5,6 @@ if(CODEGEN_IR AND CODEGEN_GENERATOR)
     PRIVATE sourcemeta::codegen::ir)
   target_link_libraries(sourcemeta_codegen_contrib_typescript
     PRIVATE sourcemeta::codegen::generator)
+  target_link_libraries(sourcemeta_codegen_contrib_typescript
+    PRIVATE sourcemeta::core::options)
 endif()
