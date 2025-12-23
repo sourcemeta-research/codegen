@@ -124,8 +124,8 @@ auto handle_schema(const sourcemeta::core::JSON &schema,
   if (subschema.defines("type")) {
     const auto &type_value{subschema.at("type")};
     if (!type_value.is_string()) {
-      throw UnexpectedKeywordValue(schema, pointer, "type",
-                                   "Expected a string value");
+      throw UnsupportedKeywordValue(schema, pointer, "type",
+                                    "Expected a string value");
     }
 
     const auto &type_string{type_value.to_string()};
@@ -146,8 +146,8 @@ auto handle_schema(const sourcemeta::core::JSON &schema,
       return handle_array(schema, vocabularies, subschema, pointer,
                           instance_location);
     } else {
-      throw UnexpectedKeywordValue(schema, pointer, "type",
-                                   "Unexpeced type value");
+      throw UnsupportedKeywordValue(schema, pointer, "type",
+                                    "Unsupported type value");
     }
   } else if (subschema.defines("enum")) {
     return handle_enum(schema, vocabularies, subschema, pointer,

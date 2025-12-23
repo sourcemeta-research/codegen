@@ -23,24 +23,25 @@ namespace sourcemeta::codegen {
 #endif
 
 /// @ingroup ir
-/// An error that represents an unexpected keyword value during IR compilation
-class SOURCEMETA_CODEGEN_IR_EXPORT UnexpectedKeywordValue
+/// An error that represents an unsupported keyword value during IR compilation
+class SOURCEMETA_CODEGEN_IR_EXPORT UnsupportedKeywordValue
     : public std::exception {
 public:
-  UnexpectedKeywordValue(sourcemeta::core::JSON json,
-                         sourcemeta::core::Pointer pointer, std::string keyword,
-                         const char *message)
+  UnsupportedKeywordValue(sourcemeta::core::JSON json,
+                          sourcemeta::core::Pointer pointer,
+                          std::string keyword, const char *message)
       : json_{std::move(json)}, pointer_{std::move(pointer)},
         keyword_{std::move(keyword)}, message_{message} {}
-  UnexpectedKeywordValue(sourcemeta::core::JSON json,
-                         sourcemeta::core::Pointer pointer, std::string keyword,
-                         std::string message) = delete;
-  UnexpectedKeywordValue(sourcemeta::core::JSON json,
-                         sourcemeta::core::Pointer pointer, std::string keyword,
-                         std::string &&message) = delete;
-  UnexpectedKeywordValue(sourcemeta::core::JSON json,
-                         sourcemeta::core::Pointer pointer, std::string keyword,
-                         std::string_view message) = delete;
+  UnsupportedKeywordValue(sourcemeta::core::JSON json,
+                          sourcemeta::core::Pointer pointer,
+                          std::string keyword, std::string message) = delete;
+  UnsupportedKeywordValue(sourcemeta::core::JSON json,
+                          sourcemeta::core::Pointer pointer,
+                          std::string keyword, std::string &&message) = delete;
+  UnsupportedKeywordValue(sourcemeta::core::JSON json,
+                          sourcemeta::core::Pointer pointer,
+                          std::string keyword,
+                          std::string_view message) = delete;
 
   [[nodiscard]] auto what() const noexcept -> const char * override {
     return this->message_;
