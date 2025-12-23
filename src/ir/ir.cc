@@ -1,8 +1,9 @@
 #include <sourcemeta/codegen/ir.h>
 #include <sourcemeta/core/alterschema.h>
 
-#include <algorithm> // std::ranges::sort
-#include <cassert>   // assert
+#include <algorithm>     // std::ranges::sort
+#include <cassert>       // assert
+#include <unordered_set> // std::unordered_set
 
 #include "ir_handlers.h"
 
