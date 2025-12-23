@@ -57,3 +57,85 @@ TEST(IR, test_2) {
       std::get<IRObject>(result.at(1)).members.at("foo").instance_location,
       foo_pointer);
 }
+
+TEST(IR, test_3) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "integer"
+  })JSON")};
+
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver)};
+
+  using namespace sourcemeta::codegen;
+
+  EXPECT_EQ(result.size(), 1);
+
+  EXPECT_TRUE(std::holds_alternative<IRScalar>(result.at(0)));
+  EXPECT_TRUE(std::get<IRScalar>(result.at(0)).instance_location.empty());
+  EXPECT_EQ(std::get<IRScalar>(result.at(0)).value, IRScalarType::Integer);
+}
+
+TEST(IR, test_4) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "number"
+  })JSON")};
+
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver)};
+
+  using namespace sourcemeta::codegen;
+
+  EXPECT_EQ(result.size(), 1);
+
+  EXPECT_TRUE(std::holds_alternative<IRScalar>(result.at(0)));
+  EXPECT_TRUE(std::get<IRScalar>(result.at(0)).instance_location.empty());
+  EXPECT_EQ(std::get<IRScalar>(result.at(0)).value, IRScalarType::Number);
+}
+
+TEST(IR, test_5) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "integer",
+    "minimum": 0,
+    "maximum": 100,
+    "multipleOf": 5
+  })JSON")};
+
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver)};
+
+  using namespace sourcemeta::codegen;
+
+  EXPECT_EQ(result.size(), 1);
+
+  EXPECT_TRUE(std::holds_alternative<IRScalar>(result.at(0)));
+  EXPECT_TRUE(std::get<IRScalar>(result.at(0)).instance_location.empty());
+  EXPECT_EQ(std::get<IRScalar>(result.at(0)).value, IRScalarType::Integer);
+}
+
+TEST(IR, test_6) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "number",
+    "exclusiveMinimum": 0,
+    "exclusiveMaximum": 1.5,
+    "multipleOf": 0.1
+  })JSON")};
+
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver)};
+
+  using namespace sourcemeta::codegen;
+
+  EXPECT_EQ(result.size(), 1);
+
+  EXPECT_TRUE(std::holds_alternative<IRScalar>(result.at(0)));
+  EXPECT_TRUE(std::get<IRScalar>(result.at(0)).instance_location.empty());
+  EXPECT_EQ(std::get<IRScalar>(result.at(0)).value, IRScalarType::Number);
+}

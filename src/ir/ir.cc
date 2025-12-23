@@ -31,7 +31,8 @@ auto handle_schema(const sourcemeta::core::JSON &schema,
 
     // The canonicaliser transforms any other type
     if (type_string == "string") {
-      return handle_string(schema, vocabularies, pointer, instance_location);
+      return handle_string(schema, vocabularies, subschema, pointer,
+                           instance_location);
     } else if (type_string == "object") {
       return handle_object(schema, vocabularies, subschema, pointer,
                            instance_location);

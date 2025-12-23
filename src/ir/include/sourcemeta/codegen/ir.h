@@ -25,7 +25,7 @@
 namespace sourcemeta::codegen {
 
 /// @ingroup ir
-enum class IRScalarType : std::uint8_t { String };
+enum class IRScalarType : std::uint8_t { String, Number, Integer };
 
 /// @ingroup ir
 struct IRScalar {

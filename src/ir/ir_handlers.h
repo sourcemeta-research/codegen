@@ -11,6 +11,7 @@ namespace sourcemeta::codegen {
 
 auto handle_string(const sourcemeta::core::JSON &,
                    const sourcemeta::core::Vocabularies &,
+                   const sourcemeta::core::JSON &,
                    const sourcemeta::core::Pointer &,
                    const sourcemeta::core::PointerTemplate &instance_location)
     -> IRScalar {
@@ -56,22 +57,24 @@ auto handle_object(const sourcemeta::core::JSON &,
                   .members = std::move(members)};
 }
 
-auto handle_integer(const sourcemeta::core::JSON &schema,
+auto handle_integer(const sourcemeta::core::JSON &,
                     const sourcemeta::core::Vocabularies &,
                     const sourcemeta::core::JSON &,
-                    const sourcemeta::core::Pointer &pointer,
-                    const sourcemeta::core::PointerTemplate &) -> IREntity {
-  throw UnexpectedSchema(schema, pointer,
-                         "We do not support this type of subschema yet");
+                    const sourcemeta::core::Pointer &,
+                    const sourcemeta::core::PointerTemplate &instance_location)
+    -> IRScalar {
+  return IRScalar{.instance_location = instance_location,
+                  .value = IRScalarType::Integer};
 }
 
-auto handle_number(const sourcemeta::core::JSON &schema,
+auto handle_number(const sourcemeta::core::JSON &,
                    const sourcemeta::core::Vocabularies &,
                    const sourcemeta::core::JSON &,
-                   const sourcemeta::core::Pointer &pointer,
-                   const sourcemeta::core::PointerTemplate &) -> IREntity {
-  throw UnexpectedSchema(schema, pointer,
-                         "We do not support this type of subschema yet");
+                   const sourcemeta::core::Pointer &,
+                   const sourcemeta::core::PointerTemplate &instance_location)
+    -> IRScalar {
+  return IRScalar{.instance_location = instance_location,
+                  .value = IRScalarType::Number};
 }
 
 auto handle_array(const sourcemeta::core::JSON &schema,
