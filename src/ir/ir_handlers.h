@@ -64,24 +64,32 @@ auto handle_schema(const sourcemeta::core::Vocabularies &vocabularies,
                    const sourcemeta::core::JSON &subschema,
                    const sourcemeta::core::PointerTemplate &instance_location)
     -> IREntity {
-  ONLY_CONTINUE_IF(subschema.defines("type"),
-                   "Cannot handle subschema without type");
+  // The canonicaliser ensures that every subschema schema is only in one of the
+  // following shapes
 
-  const auto &type_value{subschema.at("type")};
-  ONLY_CONTINUE_IF(type_value.is_string(), "Cannot handle non-string type");
-
-  const auto type_string{type_value.to_string()};
-
-  if (type_string == "string") {
-    return handle_string(vocabularies, instance_location);
+  // NOLINTBEGIN(bugprone-branch-clone)
+  if (subschema.defines("type")) {
+    const auto &type_value{subschema.at("type")};
+    ONLY_CONTINUE_IF(type_value.is_string(), "Cannot handle non-string type");
+    const auto &type_string{type_value.to_string()};
+    if (type_string == "string") {
+      return handle_string(vocabularies, instance_location);
+    } else if (type_string == "object") {
+      return handle_object(vocabularies, subschema, instance_location);
+    } else {
+      throw std::runtime_error("TODO");
+    }
+  } else if (subschema.defines("enum")) {
+    throw std::runtime_error("TODO");
+  } else if (subschema.defines("anyOf")) {
+    throw std::runtime_error("TODO");
+    // Only the recursive case
+  } else if (subschema.defines("$ref")) {
+    throw std::runtime_error("TODO");
+  } else {
+    throw std::runtime_error("TODO");
   }
-
-  if (type_string == "object") {
-    return handle_object(vocabularies, subschema, instance_location);
-  }
-
-  ONLY_CONTINUE_IF(false, "Unknown type");
-  return handle_string(vocabularies, instance_location);
+  // NOLINTEND(bugprone-branch-clone)
 }
 
 } // namespace sourcemeta::codegen
