@@ -65,6 +65,9 @@ using IREntity = std::variant<IRObject, IRScalar, IRUnion>;
 using IRResult = std::vector<IREntity>;
 
 /// @ingroup ir
+// TODO: Provide the idea of a "generator" callback like Blaze does for
+// compilation, in case we ever need to extend. It would default to the
+// `handle_schema thing we have right now`
 SOURCEMETA_CODEGEN_IR_EXPORT
 auto compile(const sourcemeta::core::JSON &schema,
              const sourcemeta::core::SchemaWalker &walker,

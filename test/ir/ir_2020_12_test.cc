@@ -297,3 +297,184 @@ TEST(IR_2020_12, const_boolean_true) {
   EXPECT_EQ(std::get<IRUnion>(result.at(0)).values.size(), 1);
   EXPECT_TRUE(std::get<IRUnion>(result.at(0)).values.at(0).to_boolean());
 }
+
+TEST(IR_2020_12, object_type_only) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object"
+  })JSON")};
+
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver)};
+
+  using namespace sourcemeta::codegen;
+
+  EXPECT_EQ(result.size(), 1);
+
+  EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(0)));
+  EXPECT_TRUE(std::get<IRObject>(result.at(0)).instance_location.empty());
+  EXPECT_TRUE(std::get<IRObject>(result.at(0)).members.empty());
+}
+
+TEST(IR_2020_12, object_empty_properties) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {}
+  })JSON")};
+
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver)};
+
+  using namespace sourcemeta::codegen;
+
+  EXPECT_EQ(result.size(), 1);
+
+  EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(0)));
+  EXPECT_TRUE(std::get<IRObject>(result.at(0)).instance_location.empty());
+  EXPECT_TRUE(std::get<IRObject>(result.at(0)).members.empty());
+}
+
+TEST(IR_2020_12, object_with_additional_properties) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "foo": { "type": "string" }
+    },
+    "additionalProperties": { "type": "integer" }
+  })JSON")};
+
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver)};
+
+  using namespace sourcemeta::codegen;
+
+  EXPECT_EQ(result.size(), 3);
+
+  const sourcemeta::core::PointerTemplate foo_pointer{
+      sourcemeta::core::to_pointer("/foo")};
+
+  EXPECT_TRUE(std::holds_alternative<IRScalar>(result.at(0)));
+  EXPECT_EQ(std::get<IRScalar>(result.at(0)).instance_location, foo_pointer);
+  EXPECT_EQ(std::get<IRScalar>(result.at(0)).value, IRScalarType::String);
+
+  const sourcemeta::core::PointerTemplate additional_pointer{
+      sourcemeta::core::PointerTemplate::Condition{.suffix =
+                                                       "additionalProperties"},
+      sourcemeta::core::PointerTemplate::Wildcard::Property};
+
+  // TODO: This gets compiled but never referenced
+  EXPECT_TRUE(std::holds_alternative<IRScalar>(result.at(1)));
+  EXPECT_EQ(std::get<IRScalar>(result.at(1)).instance_location,
+            additional_pointer);
+  EXPECT_EQ(std::get<IRScalar>(result.at(1)).value, IRScalarType::Integer);
+
+  EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(2)));
+  EXPECT_TRUE(std::get<IRObject>(result.at(2)).instance_location.empty());
+  EXPECT_EQ(std::get<IRObject>(result.at(2)).members.size(), 1);
+  EXPECT_TRUE(std::get<IRObject>(result.at(2)).members.contains("foo"));
+  EXPECT_FALSE(std::get<IRObject>(result.at(2)).members.at("foo").required);
+  EXPECT_FALSE(std::get<IRObject>(result.at(2)).members.at("foo").immutable);
+  EXPECT_EQ(
+      std::get<IRObject>(result.at(2)).members.at("foo").instance_location,
+      foo_pointer);
+}
+
+TEST(IR_2020_12, object_with_pattern_properties) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "name": { "type": "string" }
+    },
+    "patternProperties": {
+      "^x-": { "type": "string" }
+    }
+  })JSON")};
+
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver)};
+
+  using namespace sourcemeta::codegen;
+
+  EXPECT_EQ(result.size(), 3);
+
+  const sourcemeta::core::PointerTemplate name_pointer{
+      sourcemeta::core::to_pointer("/name")};
+  const sourcemeta::core::PointerTemplate pattern_pointer{std::string{"^x-"}};
+
+  EXPECT_TRUE(std::holds_alternative<IRScalar>(result.at(0)));
+  EXPECT_EQ(std::get<IRScalar>(result.at(0)).instance_location, name_pointer);
+  EXPECT_EQ(std::get<IRScalar>(result.at(0)).value, IRScalarType::String);
+
+  // TODO: This gets compiled but never referenced
+  EXPECT_TRUE(std::holds_alternative<IRScalar>(result.at(1)));
+  EXPECT_EQ(std::get<IRScalar>(result.at(1)).instance_location,
+            pattern_pointer);
+  EXPECT_EQ(std::get<IRScalar>(result.at(1)).value, IRScalarType::String);
+
+  EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(2)));
+  EXPECT_TRUE(std::get<IRObject>(result.at(2)).instance_location.empty());
+  EXPECT_EQ(std::get<IRObject>(result.at(2)).members.size(), 1);
+  EXPECT_TRUE(std::get<IRObject>(result.at(2)).members.contains("name"));
+  EXPECT_FALSE(std::get<IRObject>(result.at(2)).members.at("name").required);
+  EXPECT_FALSE(std::get<IRObject>(result.at(2)).members.at("name").immutable);
+  EXPECT_EQ(
+      std::get<IRObject>(result.at(2)).members.at("name").instance_location,
+      name_pointer);
+}
+
+TEST(IR_2020_12, object_with_required) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "id": { "type": "integer" },
+      "name": { "type": "string" }
+    },
+    "required": [ "id" ]
+  })JSON")};
+
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver)};
+
+  using namespace sourcemeta::codegen;
+
+  EXPECT_EQ(result.size(), 3);
+
+  const sourcemeta::core::PointerTemplate id_pointer{
+      sourcemeta::core::to_pointer("/id")};
+  const sourcemeta::core::PointerTemplate name_pointer{
+      sourcemeta::core::to_pointer("/name")};
+
+  EXPECT_TRUE(std::holds_alternative<IRScalar>(result.at(0)));
+  EXPECT_EQ(std::get<IRScalar>(result.at(0)).instance_location, name_pointer);
+  EXPECT_EQ(std::get<IRScalar>(result.at(0)).value, IRScalarType::String);
+
+  EXPECT_TRUE(std::holds_alternative<IRScalar>(result.at(1)));
+  EXPECT_EQ(std::get<IRScalar>(result.at(1)).instance_location, id_pointer);
+  EXPECT_EQ(std::get<IRScalar>(result.at(1)).value, IRScalarType::Integer);
+
+  EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(2)));
+  EXPECT_TRUE(std::get<IRObject>(result.at(2)).instance_location.empty());
+  EXPECT_EQ(std::get<IRObject>(result.at(2)).members.size(), 2);
+
+  EXPECT_TRUE(std::get<IRObject>(result.at(2)).members.contains("id"));
+  EXPECT_TRUE(std::get<IRObject>(result.at(2)).members.at("id").required);
+  EXPECT_FALSE(std::get<IRObject>(result.at(2)).members.at("id").immutable);
+  EXPECT_EQ(std::get<IRObject>(result.at(2)).members.at("id").instance_location,
+            id_pointer);
+
+  EXPECT_TRUE(std::get<IRObject>(result.at(2)).members.contains("name"));
+  EXPECT_FALSE(std::get<IRObject>(result.at(2)).members.at("name").required);
+  EXPECT_FALSE(std::get<IRObject>(result.at(2)).members.at("name").immutable);
+  EXPECT_EQ(
+      std::get<IRObject>(result.at(2)).members.at("name").instance_location,
+      name_pointer);
+}
