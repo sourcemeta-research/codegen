@@ -62,7 +62,7 @@ TEST(Generator_to_pascal_case, property_starting_with_number) {
       sourcemeta::core::Pointer{"123foo"}};
   const auto result{sourcemeta::codegen::to_pascal_case(
       pointer, instance_location, "Schema")};
-  EXPECT_EQ(result, "Schema_123Foo");
+  EXPECT_EQ(result, "Schema123Foo");
 }
 
 TEST(Generator_to_pascal_case, property_that_is_only_numbers) {
@@ -71,7 +71,7 @@ TEST(Generator_to_pascal_case, property_that_is_only_numbers) {
       sourcemeta::core::Pointer{"123"}};
   const auto result{sourcemeta::codegen::to_pascal_case(
       pointer, instance_location, "Schema")};
-  EXPECT_EQ(result, "Schema_123");
+  EXPECT_EQ(result, "Schema123");
 }
 
 TEST(Generator_to_pascal_case, property_with_underscore) {

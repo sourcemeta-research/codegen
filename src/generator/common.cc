@@ -55,11 +55,6 @@ auto to_pascal_case(const sourcemeta::core::Pointer &,
       continue;
     }
 
-    // If token starts with digit, prepend underscore for valid identifier
-    if (std::isdigit(static_cast<unsigned char>(token_pascal[0])) != 0) {
-      result += '_';
-    }
-
     result += token_pascal;
   }
 
