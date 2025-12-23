@@ -44,10 +44,15 @@ auto handle_object(const sourcemeta::core::JSON &schema,
                    const sourcemeta::core::Pointer &pointer,
                    const sourcemeta::core::PointerTemplate &instance_location)
     -> IRObject {
-  ONLY_WHITELIST_KEYWORDS(schema, subschema, pointer,
-                          {"$schema", "$id", "type", "properties", "required",
-                           "additionalProperties", "minProperties",
-                           "maxProperties", "propertyNames"});
+  ONLY_WHITELIST_KEYWORDS(
+      schema, subschema, pointer,
+      {"$schema", "$id", "type", "properties", "required",
+       // Note that most programming languages CANNOT represent the idea
+       // of additional properties, mainly if they differ from the types of the
+       // other properties. Therefore, we whitelist this, but we consider it to
+       // be the responsability of the validator
+       "patternProperties", "additionalProperties", "minProperties",
+       "maxProperties", "propertyNames"});
 
   std::unordered_map<sourcemeta::core::JSON::String, IRObjectValue> members;
 
