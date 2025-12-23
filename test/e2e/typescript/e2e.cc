@@ -59,7 +59,7 @@ private:
 auto main(int argc, char **argv) -> int {
   testing::InitGoogleTest(&argc, argv);
 
-  const std::filesystem::path e2e_path{TYPESCRIPT_E2E_PATH};
+  const std::filesystem::path e2e_path{E2E_TYPESCRIPT_PATH};
   for (const auto &dialect_entry :
        std::filesystem::directory_iterator(e2e_path)) {
     if (!dialect_entry.is_directory()) {
