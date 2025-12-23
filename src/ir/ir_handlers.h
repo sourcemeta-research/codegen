@@ -25,6 +25,15 @@
 
 namespace sourcemeta::codegen {
 
+auto handle_impossible(
+    const sourcemeta::core::JSON &, const sourcemeta::core::Vocabularies &,
+    const sourcemeta::core::JSON &, const sourcemeta::core::Pointer &pointer,
+    const sourcemeta::core::PointerTemplate &instance_location)
+    -> IRImpossible {
+  return IRImpossible{.pointer = pointer,
+                      .instance_location = instance_location};
+}
+
 auto handle_string(const sourcemeta::core::JSON &schema,
                    const sourcemeta::core::Vocabularies &,
                    const sourcemeta::core::JSON &subschema,

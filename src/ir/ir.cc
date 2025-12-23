@@ -20,7 +20,11 @@ auto handle_schema(const sourcemeta::core::JSON &schema,
   // The canonicaliser ensures that every subschema schema is only in one of the
   // following shapes
 
-  if (subschema.defines("type")) {
+  if (subschema.is_boolean()) {
+    assert(!subschema.to_boolean());
+    return handle_impossible(schema, vocabularies, subschema, pointer,
+                             instance_location);
+  } else if (subschema.defines("type")) {
     const auto &type_value{subschema.at("type")};
     if (!type_value.is_string()) {
       throw UnsupportedKeywordValue(schema, pointer, "type",
@@ -116,15 +120,6 @@ auto compile(
     }
 
     const auto &subschema{sourcemeta::core::get(schema, location.pointer)};
-
-    // Canonicalisation ensures subschemas are objects or the `false` subschema,
-    // in the latter case, we will deal with it in the corresponding containers
-    if (!subschema.is_object()) {
-      assert(subschema.is_boolean());
-      assert(!subschema.to_boolean());
-      continue;
-    }
-
     const auto &instance_locations{frame.instance_locations(location)};
     // Canonicalisation is expected to take care of this
     assert(!instance_locations.empty());

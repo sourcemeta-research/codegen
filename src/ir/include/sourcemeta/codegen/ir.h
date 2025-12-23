@@ -64,7 +64,13 @@ struct IRObject {
 };
 
 /// @ingroup ir
-using IREntity = std::variant<IRObject, IRScalar, IRUnion>;
+struct IRImpossible {
+  sourcemeta::core::Pointer pointer;
+  sourcemeta::core::PointerTemplate instance_location;
+};
+
+/// @ingroup ir
+using IREntity = std::variant<IRObject, IRScalar, IRUnion, IRImpossible>;
 
 /// @ingroup ir
 using IRResult = std::vector<IREntity>;
