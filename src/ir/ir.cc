@@ -61,7 +61,10 @@ auto compile(
     const auto &instance_locations{frame.instance_locations(location)};
     // Canonicalisation is expected to take care of this
     assert(!instance_locations.empty());
-    result.push_back(handle_schema(subschema, instance_locations.front()));
+    const auto vocabularies{frame.vocabularies(location, resolver)};
+    assert(!vocabularies.empty());
+    result.push_back(
+        handle_schema(vocabularies, subschema, instance_locations.front()));
   }
 
   // --------------------------------------------------------------------------

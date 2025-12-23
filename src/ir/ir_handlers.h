@@ -3,18 +3,22 @@
 
 #include <sourcemeta/codegen/ir.h>
 
+#include <sourcemeta/core/jsonschema.h>
+
 #include <set>       // std::set
 #include <stdexcept> // std::runtime_error
 
 namespace sourcemeta::codegen {
 
-auto handle_string(const sourcemeta::core::PointerTemplate &instance_location)
+auto handle_string(const sourcemeta::core::Vocabularies &,
+                   const sourcemeta::core::PointerTemplate &instance_location)
     -> IRScalar {
   return IRScalar{.instance_location = instance_location,
                   .value = IRScalarType::String};
 }
 
-auto handle_object(const sourcemeta::core::JSON &subschema,
+auto handle_object(const sourcemeta::core::Vocabularies &,
+                   const sourcemeta::core::JSON &subschema,
                    const sourcemeta::core::PointerTemplate &instance_location)
     -> IRObject {
   std::unordered_map<sourcemeta::core::JSON::String, IRObjectValue> members;
@@ -49,7 +53,8 @@ auto handle_object(const sourcemeta::core::JSON &subschema,
                   .members = std::move(members)};
 }
 
-auto handle_schema(const sourcemeta::core::JSON &subschema,
+auto handle_schema(const sourcemeta::core::Vocabularies &vocabularies,
+                   const sourcemeta::core::JSON &subschema,
                    const sourcemeta::core::PointerTemplate &instance_location)
     -> IREntity {
   if (!subschema.is_object() || !subschema.defines("type")) {
@@ -64,11 +69,11 @@ auto handle_schema(const sourcemeta::core::JSON &subschema,
   const auto type_string{type_value.to_string()};
 
   if (type_string == "string") {
-    return handle_string(instance_location);
+    return handle_string(vocabularies, instance_location);
   }
 
   if (type_string == "object") {
-    return handle_object(subschema, instance_location);
+    return handle_object(vocabularies, subschema, instance_location);
   }
 
   throw std::runtime_error("Unknown type: " + type_string);
