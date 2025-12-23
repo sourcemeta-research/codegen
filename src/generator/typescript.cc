@@ -16,9 +16,8 @@ static auto scalar_type_to_typescript(IRScalarType type) -> std::string {
 static auto handle_ir_scalar(std::ostream &output, const IRScalar &entry,
                              const std::string &default_namespace) -> void {
   output << "export type "
-         << to_pascal_case(entry.pointer, entry.instance_location,
-                           default_namespace)
-         << " = " << scalar_type_to_typescript(entry.value) << ";\n";
+         << to_pascal_case(entry.instance_location, default_namespace) << " = "
+         << scalar_type_to_typescript(entry.value) << ";\n";
 }
 
 static auto handle_ir_union(std::ostream &, const IRUnion &,
@@ -29,15 +28,13 @@ static auto handle_ir_union(std::ostream &, const IRUnion &,
 static auto handle_ir_object(std::ostream &output, const IRObject &entry,
                              const std::string &default_namespace) -> void {
   output << "export interface "
-         << to_pascal_case(entry.pointer, entry.instance_location,
-                           default_namespace)
+         << to_pascal_case(entry.instance_location, default_namespace)
          << " {\n";
   for (const auto &[member_name, member_value] : entry.members) {
     const auto optional_marker{member_value.required ? "" : "?"};
     const auto readonly_marker{member_value.immutable ? "readonly " : ""};
     output << "  " << readonly_marker << member_name << optional_marker << ": "
-           << to_pascal_case(member_value.pointer,
-                             member_value.instance_location, default_namespace)
+           << to_pascal_case(member_value.instance_location, default_namespace)
            << ";\n";
   }
   output << "}\n";

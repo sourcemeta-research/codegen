@@ -1,5 +1,6 @@
 #include <sourcemeta/codegen/generator.h>
 
+#include <cassert> // assert
 #include <cctype>  // std::isalpha, std::isdigit, std::toupper
 #include <iomanip> // std::setfill, std::setw
 #include <sstream> // std::ostringstream
@@ -31,9 +32,9 @@ static auto string_to_pascal_case(const std::string &input) -> std::string {
   return result.str();
 }
 
-auto to_pascal_case(const sourcemeta::core::Pointer &,
-                    const sourcemeta::core::PointerTemplate &instance_location,
+auto to_pascal_case(const sourcemeta::core::PointerTemplate &instance_location,
                     const std::string &default_namespace) -> std::string {
+  assert(!default_namespace.empty());
   std::string result{string_to_pascal_case(default_namespace)};
 
   if (instance_location.empty()) {
