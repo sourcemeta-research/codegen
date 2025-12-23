@@ -181,3 +181,78 @@ TEST(Generator_to_pascal_case, only_special_characters) {
       pointer, instance_location, "Schema")};
   EXPECT_EQ(result, "SchemaX40X23X24X25");
 }
+
+TEST(Generator_to_pascal_case, wildcard_property) {
+  const sourcemeta::core::Pointer pointer;
+  const sourcemeta::core::PointerTemplate instance_location{
+      sourcemeta::core::PointerTemplate::Wildcard::Property};
+  const auto result{sourcemeta::codegen::to_pascal_case(
+      pointer, instance_location, "Schema")};
+  EXPECT_EQ(result, "SchemaAnyProperty");
+}
+
+TEST(Generator_to_pascal_case, wildcard_item) {
+  const sourcemeta::core::Pointer pointer;
+  const sourcemeta::core::PointerTemplate instance_location{
+      sourcemeta::core::PointerTemplate::Wildcard::Item};
+  const auto result{sourcemeta::codegen::to_pascal_case(
+      pointer, instance_location, "Schema")};
+  EXPECT_EQ(result, "SchemaAnyItem");
+}
+
+TEST(Generator_to_pascal_case, wildcard_key) {
+  const sourcemeta::core::Pointer pointer;
+  const sourcemeta::core::PointerTemplate instance_location{
+      sourcemeta::core::PointerTemplate::Wildcard::Key};
+  const auto result{sourcemeta::codegen::to_pascal_case(
+      pointer, instance_location, "Schema")};
+  EXPECT_EQ(result, "SchemaAnyKey");
+}
+
+TEST(Generator_to_pascal_case, condition_without_suffix) {
+  const sourcemeta::core::Pointer pointer;
+  const sourcemeta::core::PointerTemplate instance_location{
+      sourcemeta::core::PointerTemplate::Condition{}};
+  const auto result{sourcemeta::codegen::to_pascal_case(
+      pointer, instance_location, "Schema")};
+  EXPECT_EQ(result, "SchemaMaybe");
+}
+
+TEST(Generator_to_pascal_case, condition_with_suffix) {
+  const sourcemeta::core::Pointer pointer;
+  const sourcemeta::core::PointerTemplate instance_location{
+      sourcemeta::core::PointerTemplate::Condition{"then"}};
+  const auto result{sourcemeta::codegen::to_pascal_case(
+      pointer, instance_location, "Schema")};
+  EXPECT_EQ(result, "SchemaMaybeThen");
+}
+
+TEST(Generator_to_pascal_case, negation) {
+  const sourcemeta::core::Pointer pointer;
+  const sourcemeta::core::PointerTemplate instance_location{
+      sourcemeta::core::PointerTemplate::Negation{}};
+  const auto result{sourcemeta::codegen::to_pascal_case(
+      pointer, instance_location, "Schema")};
+  EXPECT_EQ(result, "SchemaNot");
+}
+
+TEST(Generator_to_pascal_case, regex_pattern) {
+  const sourcemeta::core::Pointer pointer;
+  const sourcemeta::core::PointerTemplate instance_location{
+      std::string{"^foo.*"}};
+  const auto result{sourcemeta::codegen::to_pascal_case(
+      pointer, instance_location, "Schema")};
+  EXPECT_EQ(result, "SchemaRegexX5EFooX2EX2A");
+}
+
+TEST(Generator_to_pascal_case, mixed_tokens) {
+  const sourcemeta::core::Pointer pointer;
+  sourcemeta::core::PointerTemplate instance_location;
+  instance_location.emplace_back(sourcemeta::core::Pointer::Token{"foo"});
+  instance_location.emplace_back(
+      sourcemeta::core::PointerTemplate::Wildcard::Property);
+  instance_location.emplace_back(sourcemeta::core::Pointer::Token{"bar"});
+  const auto result{sourcemeta::codegen::to_pascal_case(
+      pointer, instance_location, "Schema")};
+  EXPECT_EQ(result, "SchemaFooAnyPropertyBar");
+}

@@ -41,16 +41,43 @@ auto to_pascal_case(const sourcemeta::core::Pointer &,
   }
 
   for (const auto &token : instance_location) {
-    const auto &property_token{
-        std::get<sourcemeta::core::Pointer::Token>(token)};
-    const auto &property{property_token.to_property()};
-
-    std::string token_pascal{string_to_pascal_case(property)};
-    if (token_pascal.empty()) {
-      continue;
+    if (const auto *property_token =
+            std::get_if<sourcemeta::core::Pointer::Token>(&token)) {
+      const auto &property{property_token->to_property()};
+      std::string token_pascal{string_to_pascal_case(property)};
+      if (!token_pascal.empty()) {
+        result += token_pascal;
+      }
+    } else if (const auto *wildcard =
+                   std::get_if<sourcemeta::core::PointerTemplate::Wildcard>(
+                       &token)) {
+      switch (*wildcard) {
+        case sourcemeta::core::PointerTemplate::Wildcard::Property:
+          result += "AnyProperty";
+          break;
+        case sourcemeta::core::PointerTemplate::Wildcard::Item:
+          result += "AnyItem";
+          break;
+        case sourcemeta::core::PointerTemplate::Wildcard::Key:
+          result += "AnyKey";
+          break;
+      }
+    } else if (const auto *condition =
+                   std::get_if<sourcemeta::core::PointerTemplate::Condition>(
+                       &token)) {
+      result += "Maybe";
+      if (condition->suffix.has_value()) {
+        result += string_to_pascal_case(condition->suffix.value());
+      }
+    } else if (std::holds_alternative<
+                   sourcemeta::core::PointerTemplate::Negation>(token)) {
+      result += "Not";
+    } else if (const auto *regex =
+                   std::get_if<sourcemeta::core::PointerTemplate::Regex>(
+                       &token)) {
+      result += "Regex";
+      result += string_to_pascal_case(*regex);
     }
-
-    result += token_pascal;
   }
 
   return result;
