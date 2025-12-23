@@ -20,9 +20,9 @@ namespace sourcemeta::codegen {
 
 /// @ingroup generator
 SOURCEMETA_CODEGEN_GENERATOR_EXPORT
-auto safe_name(const sourcemeta::core::Pointer &pointer,
-               const sourcemeta::core::PointerTemplate &instance_location,
-               const std::optional<std::string> &default_namespace)
+auto to_pascal_case(const sourcemeta::core::Pointer &pointer,
+                    const sourcemeta::core::PointerTemplate &instance_location,
+                    const std::optional<std::string> &default_namespace)
     -> std::string;
 
 /// @ingroup generator
