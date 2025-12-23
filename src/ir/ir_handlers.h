@@ -72,23 +72,21 @@ auto handle_object(const sourcemeta::core::JSON &schema,
     }
   }
 
-  for (const auto &[property_name, property_schema, property_hash] :
-       properties.as_object()) {
-    static_cast<void>(property_hash);
+  for (const auto &entry : properties.as_object()) {
     auto property_pointer{pointer};
     property_pointer.push_back("properties");
-    property_pointer.push_back(property_name);
+    property_pointer.push_back(entry.first);
 
     auto property_instance_location{instance_location};
     property_instance_location.emplace_back(
-        sourcemeta::core::Pointer::Token{property_name});
+        sourcemeta::core::Pointer::Token{entry.first});
 
-    IRObjectValue member_value{.required = required_set.contains(property_name),
+    IRObjectValue member_value{.required = required_set.contains(entry.first),
                                .immutable = false,
                                .pointer = property_pointer,
                                .instance_location = property_instance_location};
 
-    members.emplace(property_name, std::move(member_value));
+    members.emplace(entry.first, std::move(member_value));
   }
 
   return IRObject{.pointer = pointer,
