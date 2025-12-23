@@ -60,6 +60,7 @@ struct IRObject {
   sourcemeta::core::Pointer pointer;
   sourcemeta::core::PointerTemplate instance_location;
   std::unordered_map<sourcemeta::core::JSON::String, IRObjectValue> members;
+  std::optional<IRObjectValue> additional;
 };
 
 /// @ingroup ir

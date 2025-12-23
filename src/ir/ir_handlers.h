@@ -89,9 +89,29 @@ auto handle_object(const sourcemeta::core::JSON &schema,
     members.emplace(entry.first, std::move(member_value));
   }
 
+  std::optional<IRObjectValue> additional{std::nullopt};
+  if (subschema.defines("additionalProperties")) {
+    auto additional_pointer{pointer};
+    additional_pointer.push_back("additionalProperties");
+
+    auto additional_instance_location{instance_location};
+    additional_instance_location.emplace_back(
+        sourcemeta::core::PointerTemplate::Condition{
+            .suffix = "additionalProperties"});
+    additional_instance_location.emplace_back(
+        sourcemeta::core::PointerTemplate::Wildcard::Property);
+
+    additional =
+        IRObjectValue{.required = false,
+                      .immutable = false,
+                      .pointer = additional_pointer,
+                      .instance_location = additional_instance_location};
+  }
+
   return IRObject{.pointer = pointer,
                   .instance_location = instance_location,
-                  .members = std::move(members)};
+                  .members = std::move(members),
+                  .additional = std::move(additional)};
 }
 
 auto handle_integer(const sourcemeta::core::JSON &schema,

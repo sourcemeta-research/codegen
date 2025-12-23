@@ -60,6 +60,7 @@ TEST(IR_2020_12, test_2) {
   EXPECT_AS_STRING(
       std::get<IRObject>(result.at(1)).members.at("foo").instance_location,
       "/foo");
+  EXPECT_FALSE(std::get<IRObject>(result.at(1)).additional.has_value());
 }
 
 TEST(IR_2020_12, test_3) {
@@ -332,6 +333,7 @@ TEST(IR_2020_12, object_type_only) {
   EXPECT_AS_STRING(std::get<IRObject>(result.at(0)).pointer, "");
   EXPECT_AS_STRING(std::get<IRObject>(result.at(0)).instance_location, "");
   EXPECT_TRUE(std::get<IRObject>(result.at(0)).members.empty());
+  EXPECT_FALSE(std::get<IRObject>(result.at(0)).additional.has_value());
 }
 
 TEST(IR_2020_12, object_empty_properties) {
@@ -353,6 +355,7 @@ TEST(IR_2020_12, object_empty_properties) {
   EXPECT_AS_STRING(std::get<IRObject>(result.at(0)).pointer, "");
   EXPECT_AS_STRING(std::get<IRObject>(result.at(0)).instance_location, "");
   EXPECT_TRUE(std::get<IRObject>(result.at(0)).members.empty());
+  EXPECT_FALSE(std::get<IRObject>(result.at(0)).additional.has_value());
 }
 
 TEST(IR_2020_12, object_with_additional_properties) {
@@ -397,4 +400,13 @@ TEST(IR_2020_12, object_with_additional_properties) {
   EXPECT_AS_STRING(
       std::get<IRObject>(result.at(2)).members.at("foo").instance_location,
       "/foo");
+
+  EXPECT_TRUE(std::get<IRObject>(result.at(2)).additional.has_value());
+  EXPECT_FALSE(std::get<IRObject>(result.at(2)).additional->required);
+  EXPECT_FALSE(std::get<IRObject>(result.at(2)).additional->immutable);
+  EXPECT_AS_STRING(std::get<IRObject>(result.at(2)).additional->pointer,
+                   "/additionalProperties");
+  EXPECT_AS_STRING(
+      std::get<IRObject>(result.at(2)).additional->instance_location,
+      "/~?additionalProperties~/~P~");
 }
