@@ -18,6 +18,7 @@ inline auto ONLY_CONTINUE_IF(const bool condition, const char *message)
 }
 
 auto handle_string(const sourcemeta::core::Vocabularies &,
+                   const sourcemeta::core::Pointer &,
                    const sourcemeta::core::PointerTemplate &instance_location)
     -> IRScalar {
   return IRScalar{.instance_location = instance_location,
@@ -26,6 +27,7 @@ auto handle_string(const sourcemeta::core::Vocabularies &,
 
 auto handle_object(const sourcemeta::core::Vocabularies &,
                    const sourcemeta::core::JSON &subschema,
+                   const sourcemeta::core::Pointer &,
                    const sourcemeta::core::PointerTemplate &instance_location)
     -> IRObject {
   std::unordered_map<sourcemeta::core::JSON::String, IRObjectValue> members;
@@ -62,42 +64,49 @@ auto handle_object(const sourcemeta::core::Vocabularies &,
 
 auto handle_integer(const sourcemeta::core::Vocabularies &,
                     const sourcemeta::core::JSON &,
+                    const sourcemeta::core::Pointer &,
                     const sourcemeta::core::PointerTemplate &) -> IREntity {
   throw std::runtime_error("TODO: handle_integer");
 }
 
 auto handle_number(const sourcemeta::core::Vocabularies &,
                    const sourcemeta::core::JSON &,
+                   const sourcemeta::core::Pointer &,
                    const sourcemeta::core::PointerTemplate &) -> IREntity {
   throw std::runtime_error("TODO: handle_number");
 }
 
 auto handle_array(const sourcemeta::core::Vocabularies &,
                   const sourcemeta::core::JSON &,
+                  const sourcemeta::core::Pointer &,
                   const sourcemeta::core::PointerTemplate &) -> IREntity {
   throw std::runtime_error("TODO: handle_array");
 }
 
 auto handle_enum(const sourcemeta::core::Vocabularies &,
                  const sourcemeta::core::JSON &,
+                 const sourcemeta::core::Pointer &,
                  const sourcemeta::core::PointerTemplate &) -> IREntity {
   throw std::runtime_error("TODO: handle_enum");
 }
 
 auto handle_anyof(const sourcemeta::core::Vocabularies &,
                   const sourcemeta::core::JSON &,
+                  const sourcemeta::core::Pointer &,
                   const sourcemeta::core::PointerTemplate &) -> IREntity {
   throw std::runtime_error("TODO: handle_anyof");
 }
 
 auto handle_ref(const sourcemeta::core::Vocabularies &,
                 const sourcemeta::core::JSON &,
+                const sourcemeta::core::Pointer &,
                 const sourcemeta::core::PointerTemplate &) -> IREntity {
   throw std::runtime_error("TODO: handle_ref");
 }
 
 auto handle_schema(const sourcemeta::core::Vocabularies &vocabularies,
                    const sourcemeta::core::JSON &subschema,
+                   const sourcemeta::core::Pointer &pointer,
                    const sourcemeta::core::PointerTemplate &instance_location)
     -> IREntity {
   // The canonicaliser ensures that every subschema schema is only in one of the
@@ -110,25 +119,26 @@ auto handle_schema(const sourcemeta::core::Vocabularies &vocabularies,
 
     // The canonicaliser transforms any other type
     if (type_string == "string") {
-      return handle_string(vocabularies, instance_location);
+      return handle_string(vocabularies, pointer, instance_location);
     } else if (type_string == "object") {
-      return handle_object(vocabularies, subschema, instance_location);
+      return handle_object(vocabularies, subschema, pointer, instance_location);
     } else if (type_string == "integer") {
-      return handle_integer(vocabularies, subschema, instance_location);
+      return handle_integer(vocabularies, subschema, pointer,
+                            instance_location);
     } else if (type_string == "number") {
-      return handle_number(vocabularies, subschema, instance_location);
+      return handle_number(vocabularies, subschema, pointer, instance_location);
     } else if (type_string == "array") {
-      return handle_array(vocabularies, subschema, instance_location);
+      return handle_array(vocabularies, subschema, pointer, instance_location);
     } else {
       throw std::runtime_error("TODO: unknown type");
     }
   } else if (subschema.defines("enum")) {
-    return handle_enum(vocabularies, subschema, instance_location);
+    return handle_enum(vocabularies, subschema, pointer, instance_location);
   } else if (subschema.defines("anyOf")) {
-    return handle_anyof(vocabularies, subschema, instance_location);
+    return handle_anyof(vocabularies, subschema, pointer, instance_location);
     // Only the recursive case
   } else if (subschema.defines("$ref")) {
-    return handle_ref(vocabularies, subschema, instance_location);
+    return handle_ref(vocabularies, subschema, pointer, instance_location);
   } else {
     throw std::runtime_error("TODO: unknown subschema shape");
   }
