@@ -48,7 +48,8 @@ auto typescript(std::ostream &output, const IRResult &result,
     std::visit(
         [&output, &default_namespace](const auto &entry) {
           using T = std::decay_t<decltype(entry)>;
-          const auto name{pointer_to_name(entry.pointer, default_namespace)};
+          const auto name{
+              pointer_to_name(entry.instance_location, default_namespace)};
 
           if constexpr (std::is_same_v<T, IRScalar>) {
             output << "export type " << name << " = "
@@ -59,8 +60,8 @@ auto typescript(std::ostream &output, const IRResult &result,
               const auto optional_marker{member_value.required ? "" : "?"};
               const auto readonly_marker{member_value.immutable ? "readonly "
                                                                 : ""};
-              const auto member_type_name{
-                  pointer_to_name(member_value.pointer, default_namespace)};
+              const auto member_type_name{pointer_to_name(
+                  member_value.instance_location, default_namespace)};
               output << "  " << readonly_marker << member_name
                      << optional_marker << ": " << member_type_name << ";\n";
             }

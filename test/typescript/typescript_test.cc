@@ -8,7 +8,8 @@ TEST(TypeScript, test_1) {
   using namespace sourcemeta::codegen;
 
   IRResult result;
-  result.emplace_back(IRScalar{.pointer = {}, .value = IRScalarType::String});
+  result.emplace_back(
+      IRScalar{.instance_location = {}, .value = IRScalarType::String});
 
   std::ostringstream output;
   typescript(output, result, "MyType");
@@ -22,17 +23,18 @@ TEST(TypeScript, test_2) {
   IRResult result;
 
   result.emplace_back(IRScalar{
-      .pointer =
+      .instance_location =
           sourcemeta::core::PointerTemplate{sourcemeta::core::Pointer{"foo"}},
       .value = IRScalarType::String});
 
   IRObject object;
-  object.pointer = {};
+  object.instance_location = {};
   object.members.emplace(
-      "foo", IRObjectValue{.required = false,
-                           .immutable = false,
-                           .pointer = sourcemeta::core::PointerTemplate{
-                               sourcemeta::core::Pointer{"foo"}}});
+      "foo",
+      IRObjectValue{.required = false,
+                    .immutable = false,
+                    .instance_location = sourcemeta::core::PointerTemplate{
+                        sourcemeta::core::Pointer{"foo"}}});
   result.emplace_back(std::move(object));
 
   std::ostringstream output;

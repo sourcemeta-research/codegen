@@ -25,7 +25,7 @@ schema_to_ir(const sourcemeta::core::JSON &subschema,
   const auto type_string{type_value.to_string()};
 
   if (type_string == "string") {
-    return IRScalar{.pointer = instance_location,
+    return IRScalar{.instance_location = instance_location,
                     .value = IRScalarType::String};
   }
 
@@ -49,16 +49,16 @@ schema_to_ir(const sourcemeta::core::JSON &subschema,
         property_instance_location.emplace_back(
             sourcemeta::core::Pointer::Token{property_name});
 
-        IRObjectValue member_value{.required =
-                                       required_set.contains(property_name),
-                                   .immutable = false,
-                                   .pointer = property_instance_location};
+        IRObjectValue member_value{
+            .required = required_set.contains(property_name),
+            .immutable = false,
+            .instance_location = property_instance_location};
 
         members.emplace(property_name, std::move(member_value));
       }
     }
 
-    return IRObject{.pointer = instance_location,
+    return IRObject{.instance_location = instance_location,
                     .members = std::move(members)};
   }
 
@@ -124,10 +124,12 @@ auto compile(
 
   std::ranges::sort(
       result, [](const IREntity &left, const IREntity &right) -> bool {
-        return std::visit([](const auto &entry) { return entry.pointer; },
-                          right) <
-               std::visit([](const auto &entry) { return entry.pointer; },
-                          left);
+        return std::visit(
+                   [](const auto &entry) { return entry.instance_location; },
+                   right) <
+               std::visit(
+                   [](const auto &entry) { return entry.instance_location; },
+                   left);
       });
 
   return result;

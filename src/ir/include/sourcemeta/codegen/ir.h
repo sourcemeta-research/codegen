@@ -27,18 +27,18 @@ enum class IRScalarType : std::uint8_t { String };
 struct IRObjectValue {
   bool required;
   bool immutable;
-  sourcemeta::core::PointerTemplate pointer;
+  sourcemeta::core::PointerTemplate instance_location;
 };
 
 /// @ingroup ir
 struct IRScalar {
-  sourcemeta::core::PointerTemplate pointer;
+  sourcemeta::core::PointerTemplate instance_location;
   IRScalarType value;
 };
 
 /// @ingroup ir
 struct IRObject {
-  sourcemeta::core::PointerTemplate pointer;
+  sourcemeta::core::PointerTemplate instance_location;
   std::unordered_map<sourcemeta::core::JSON::String, IRObjectValue> members;
 };
 

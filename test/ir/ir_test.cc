@@ -17,7 +17,7 @@ TEST(IR, test_1) {
   EXPECT_EQ(result.size(), 1);
 
   EXPECT_TRUE(std::holds_alternative<IRScalar>(result.at(0)));
-  EXPECT_TRUE(std::get<IRScalar>(result.at(0)).pointer.empty());
+  EXPECT_TRUE(std::get<IRScalar>(result.at(0)).instance_location.empty());
   EXPECT_EQ(std::get<IRScalar>(result.at(0)).value, IRScalarType::String);
 }
 
@@ -44,15 +44,16 @@ TEST(IR, test_2) {
       sourcemeta::core::to_pointer("/foo")};
 
   EXPECT_TRUE(std::holds_alternative<IRScalar>(result.at(0)));
-  EXPECT_EQ(std::get<IRScalar>(result.at(0)).pointer, foo_pointer);
+  EXPECT_EQ(std::get<IRScalar>(result.at(0)).instance_location, foo_pointer);
   EXPECT_EQ(std::get<IRScalar>(result.at(0)).value, IRScalarType::String);
 
   EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(1)));
-  EXPECT_TRUE(std::get<IRObject>(result.at(1)).pointer.empty());
+  EXPECT_TRUE(std::get<IRObject>(result.at(1)).instance_location.empty());
   EXPECT_EQ(std::get<IRObject>(result.at(1)).members.size(), 1);
   EXPECT_TRUE(std::get<IRObject>(result.at(1)).members.contains("foo"));
   EXPECT_FALSE(std::get<IRObject>(result.at(1)).members.at("foo").required);
   EXPECT_FALSE(std::get<IRObject>(result.at(1)).members.at("foo").immutable);
-  EXPECT_EQ(std::get<IRObject>(result.at(1)).members.at("foo").pointer,
-            foo_pointer);
+  EXPECT_EQ(
+      std::get<IRObject>(result.at(1)).members.at("foo").instance_location,
+      foo_pointer);
 }
