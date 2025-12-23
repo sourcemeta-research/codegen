@@ -6,7 +6,6 @@
 
 namespace sourcemeta::codegen {
 
-// Helper to convert a string to PascalCase with hex-escaped special characters
 static auto string_to_pascal_case(const std::string &input) -> std::string {
   std::ostringstream result;
   bool capitalize_next{true};
@@ -35,7 +34,6 @@ static auto string_to_pascal_case(const std::string &input) -> std::string {
 auto to_pascal_case(const sourcemeta::core::Pointer &,
                     const sourcemeta::core::PointerTemplate &instance_location,
                     const std::string &default_namespace) -> std::string {
-  // Convert namespace to PascalCase
   std::string result{string_to_pascal_case(default_namespace)};
 
   if (instance_location.empty()) {
@@ -47,10 +45,7 @@ auto to_pascal_case(const sourcemeta::core::Pointer &,
         std::get<sourcemeta::core::Pointer::Token>(token)};
     const auto &property{property_token.to_property()};
 
-    // Convert token to PascalCase
     std::string token_pascal{string_to_pascal_case(property)};
-
-    // Skip empty tokens
     if (token_pascal.empty()) {
       continue;
     }
