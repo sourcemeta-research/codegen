@@ -48,32 +48,36 @@ auto handle_object(const sourcemeta::core::JSON &schema,
                           {"$schema", "$id", "type", "properties", "required",
                            "additionalProperties", "minProperties",
                            "maxProperties", "propertyNames"});
+
   std::unordered_map<sourcemeta::core::JSON::String, IRObjectValue> members;
 
-  if (subschema.defines("properties")) {
-    const auto &properties{subschema.at("properties")};
+  // Guaranteed by canonicalisation
+  assert(subschema.defines("properties"));
 
-    std::unordered_set<std::string_view> required_set;
-    if (subschema.defines("required")) {
-      for (const auto &item : subschema.at("required").as_array()) {
-        required_set.insert(item.to_string());
-      }
+  const auto &properties{subschema.at("properties")};
+
+  std::unordered_set<std::string_view> required_set;
+  if (subschema.defines("required")) {
+    const auto &required{schema.at("required")};
+    for (const auto &item : required.as_array()) {
+      // Guaranteed by canonicalisation
+      assert(properties.defines(item.to_string()));
+      required_set.insert(item.to_string());
     }
+  }
 
-    for (const auto &[property_name, property_schema, property_hash] :
-         properties.as_object()) {
-      static_cast<void>(property_hash);
-      auto property_instance_location{instance_location};
-      property_instance_location.emplace_back(
-          sourcemeta::core::Pointer::Token{property_name});
+  for (const auto &[property_name, property_schema, property_hash] :
+       properties.as_object()) {
+    static_cast<void>(property_hash);
+    auto property_instance_location{instance_location};
+    property_instance_location.emplace_back(
+        sourcemeta::core::Pointer::Token{property_name});
 
-      IRObjectValue member_value{
-          .required = required_set.contains(property_name),
-          .immutable = false,
-          .instance_location = property_instance_location};
+    IRObjectValue member_value{.required = required_set.contains(property_name),
+                               .immutable = false,
+                               .instance_location = property_instance_location};
 
-      members.emplace(property_name, std::move(member_value));
-    }
+    members.emplace(property_name, std::move(member_value));
   }
 
   return IRObject{.instance_location = instance_location,
