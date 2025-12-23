@@ -5,6 +5,10 @@
 #include <sourcemeta/codegen/ir_export.h>
 #endif
 
+// NOLINTBEGIN(misc-include-cleaner)
+#include <sourcemeta/codegen/ir_error.h>
+// NOLINTEND(misc-include-cleaner)
+
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
 #include <sourcemeta/core/jsonschema.h>
