@@ -5,7 +5,8 @@
 
 #include <sourcemeta/core/jsonschema.h>
 
-#include <set> // std::set
+#include <string_view>   // std::string_view
+#include <unordered_set> // std::unordered_set
 
 namespace sourcemeta::codegen {
 
@@ -30,7 +31,7 @@ auto handle_object(const sourcemeta::core::JSON &,
   if (subschema.defines("properties")) {
     const auto &properties{subschema.at("properties")};
 
-    std::set<std::string> required_set;
+    std::unordered_set<std::string_view> required_set;
     if (subschema.defines("required")) {
       for (const auto &item : subschema.at("required").as_array()) {
         required_set.insert(item.to_string());
