@@ -1,5 +1,5 @@
-export type foo = string;
+export type MyObjectFoo = string;
 
 export interface MyObject {
-  foo?: foo;
+  foo?: MyObjectFoo;
 }

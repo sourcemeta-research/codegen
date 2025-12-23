@@ -4,7 +4,7 @@
 
 #include <sstream> // std::ostringstream
 
-TEST(TypeScript, test_1) {
+TEST(Generator_typescript, test_1) {
   using namespace sourcemeta::codegen;
 
   IRResult result;
@@ -17,7 +17,7 @@ TEST(TypeScript, test_1) {
   EXPECT_EQ(output.str(), "export type MyType = string;\n");
 }
 
-TEST(TypeScript, test_2) {
+TEST(Generator_typescript, test_2) {
   using namespace sourcemeta::codegen;
 
   IRResult result;
@@ -40,10 +40,10 @@ TEST(TypeScript, test_2) {
   std::ostringstream output;
   typescript(output, result, "MyObject");
 
-  const auto expected{R"TS(export type foo = string;
+  const auto expected{R"TS(export type MyObjectFoo = string;
 
 export interface MyObject {
-  foo?: foo;
+  foo?: MyObjectFoo;
 }
 )TS"};
 
