@@ -33,10 +33,14 @@ static auto handle_ir_object(std::ostream &output, const IRObject &entry,
   for (const auto &[member_name, member_value] : entry.members) {
     const auto optional_marker{member_value.required ? "" : "?"};
     const auto readonly_marker{member_value.immutable ? "readonly " : ""};
-    output << "  " << readonly_marker << member_name << optional_marker << ": "
+    output << "  "
+           << readonly_marker
+           // TODO: Throw an error if this member name cannot be represented
+           << member_name << optional_marker << ": "
            << to_pascal_case(member_value.instance_location, default_namespace)
            << ";\n";
   }
+
   output << "}\n";
 }
 
