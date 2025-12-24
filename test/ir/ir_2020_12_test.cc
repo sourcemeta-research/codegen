@@ -688,3 +688,107 @@ TEST(IR_2020_12, tuple_with_prefix_items_and_items) {
       std::get<IRTuple>(result.at(2)).additional->instance_location,
       "/~?items~/~I~");
 }
+
+TEST(IR_2020_12, anyof_two_branches) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "anyOf": [
+      { "type": "string" },
+      { "type": "integer" }
+    ]
+  })JSON")};
+
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
+
+  using namespace sourcemeta::codegen;
+
+  EXPECT_EQ(result.size(), 3);
+
+  EXPECT_TRUE(std::holds_alternative<IRScalar>(result.at(0)));
+  EXPECT_AS_STRING(std::get<IRScalar>(result.at(0)).pointer, "/anyOf/0");
+  EXPECT_AS_STRING(std::get<IRScalar>(result.at(0)).instance_location,
+                   "/~?anyOf~/~?0~");
+  EXPECT_EQ(std::get<IRScalar>(result.at(0)).value, IRScalarType::String);
+
+  EXPECT_TRUE(std::holds_alternative<IRScalar>(result.at(1)));
+  EXPECT_AS_STRING(std::get<IRScalar>(result.at(1)).pointer, "/anyOf/1");
+  EXPECT_AS_STRING(std::get<IRScalar>(result.at(1)).instance_location,
+                   "/~?anyOf~/~?1~");
+  EXPECT_EQ(std::get<IRScalar>(result.at(1)).value, IRScalarType::Integer);
+
+  EXPECT_TRUE(std::holds_alternative<IRUnion>(result.at(2)));
+  EXPECT_AS_STRING(std::get<IRUnion>(result.at(2)).pointer, "");
+  EXPECT_AS_STRING(std::get<IRUnion>(result.at(2)).instance_location, "");
+  EXPECT_EQ(std::get<IRUnion>(result.at(2)).values.size(), 2);
+  EXPECT_AS_STRING(std::get<IRUnion>(result.at(2)).values.at(0).pointer,
+                   "/anyOf/0");
+  EXPECT_AS_STRING(
+      std::get<IRUnion>(result.at(2)).values.at(0).instance_location,
+      "/~?anyOf~/~?0~");
+  EXPECT_AS_STRING(std::get<IRUnion>(result.at(2)).values.at(1).pointer,
+                   "/anyOf/1");
+  EXPECT_AS_STRING(
+      std::get<IRUnion>(result.at(2)).values.at(1).instance_location,
+      "/~?anyOf~/~?1~");
+}
+
+TEST(IR_2020_12, anyof_three_branches) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "anyOf": [
+      { "type": "string" },
+      { "type": "integer" },
+      { "type": "boolean" }
+    ]
+  })JSON")};
+
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
+
+  using namespace sourcemeta::codegen;
+
+  EXPECT_EQ(result.size(), 4);
+
+  EXPECT_TRUE(std::holds_alternative<IRScalar>(result.at(0)));
+  EXPECT_AS_STRING(std::get<IRScalar>(result.at(0)).pointer, "/anyOf/0");
+  EXPECT_AS_STRING(std::get<IRScalar>(result.at(0)).instance_location,
+                   "/~?anyOf~/~?0~");
+  EXPECT_EQ(std::get<IRScalar>(result.at(0)).value, IRScalarType::String);
+
+  EXPECT_TRUE(std::holds_alternative<IRScalar>(result.at(1)));
+  EXPECT_AS_STRING(std::get<IRScalar>(result.at(1)).pointer, "/anyOf/1");
+  EXPECT_AS_STRING(std::get<IRScalar>(result.at(1)).instance_location,
+                   "/~?anyOf~/~?1~");
+  EXPECT_EQ(std::get<IRScalar>(result.at(1)).value, IRScalarType::Integer);
+
+  EXPECT_TRUE(std::holds_alternative<IRScalar>(result.at(2)));
+  EXPECT_AS_STRING(std::get<IRScalar>(result.at(2)).pointer, "/anyOf/2");
+  EXPECT_AS_STRING(std::get<IRScalar>(result.at(2)).instance_location,
+                   "/~?anyOf~/~?2~");
+  EXPECT_EQ(std::get<IRScalar>(result.at(2)).value, IRScalarType::Boolean);
+
+  EXPECT_TRUE(std::holds_alternative<IRUnion>(result.at(3)));
+  EXPECT_AS_STRING(std::get<IRUnion>(result.at(3)).pointer, "");
+  EXPECT_AS_STRING(std::get<IRUnion>(result.at(3)).instance_location, "");
+  EXPECT_EQ(std::get<IRUnion>(result.at(3)).values.size(), 3);
+  EXPECT_AS_STRING(std::get<IRUnion>(result.at(3)).values.at(0).pointer,
+                   "/anyOf/0");
+  EXPECT_AS_STRING(
+      std::get<IRUnion>(result.at(3)).values.at(0).instance_location,
+      "/~?anyOf~/~?0~");
+  EXPECT_AS_STRING(std::get<IRUnion>(result.at(3)).values.at(1).pointer,
+                   "/anyOf/1");
+  EXPECT_AS_STRING(
+      std::get<IRUnion>(result.at(3)).values.at(1).instance_location,
+      "/~?anyOf~/~?1~");
+  EXPECT_AS_STRING(std::get<IRUnion>(result.at(3)).values.at(2).pointer,
+                   "/anyOf/2");
+  EXPECT_AS_STRING(
+      std::get<IRUnion>(result.at(3)).values.at(2).instance_location,
+      "/~?anyOf~/~?2~");
+}

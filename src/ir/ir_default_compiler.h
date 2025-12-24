@@ -300,11 +300,36 @@ auto handle_enum(const sourcemeta::core::JSON &schema,
 
 auto handle_anyof(const sourcemeta::core::JSON &schema,
                   const sourcemeta::core::Vocabularies &,
-                  const sourcemeta::core::JSON &,
+                  const sourcemeta::core::JSON &subschema,
                   const sourcemeta::core::Pointer &pointer,
-                  const sourcemeta::core::PointerTemplate &) -> IREntity {
-  throw UnexpectedSchema(schema, pointer,
-                         "We do not support this type of subschema yet");
+                  const sourcemeta::core::PointerTemplate &instance_location)
+    -> IREntity {
+  ONLY_WHITELIST_KEYWORDS(schema, subschema, pointer,
+                          {"$schema", "$id", "anyOf"});
+
+  const auto &any_of{subschema.at("anyOf")};
+  assert(any_of.is_array());
+  assert(any_of.size() >= 2);
+
+  std::vector<IRType> branches;
+  for (std::size_t index = 0; index < any_of.size(); ++index) {
+    auto branch_pointer{pointer};
+    branch_pointer.push_back("anyOf");
+    branch_pointer.push_back(index);
+
+    auto branch_instance_location{instance_location};
+    branch_instance_location.emplace_back(
+        sourcemeta::core::PointerTemplate::Condition{.suffix = "anyOf"});
+    branch_instance_location.emplace_back(
+        sourcemeta::core::PointerTemplate::Condition{
+            .suffix = std::to_string(index)});
+
+    branches.push_back({.pointer = branch_pointer,
+                        .instance_location = branch_instance_location});
+  }
+
+  return IRUnion{{.pointer = pointer, .instance_location = instance_location},
+                 std::move(branches)};
 }
 
 auto handle_ref(const sourcemeta::core::JSON &schema,

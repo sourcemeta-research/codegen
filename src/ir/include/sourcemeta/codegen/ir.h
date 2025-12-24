@@ -51,6 +51,11 @@ struct IREnumeration : IRType {
 };
 
 /// @ingroup ir
+struct IRUnion : IRType {
+  std::vector<IRType> values;
+};
+
+/// @ingroup ir
 struct IRObjectValue : IRType {
   bool required;
   bool immutable;
@@ -77,8 +82,8 @@ struct IRTuple : IRType {
 struct IRImpossible : IRType {};
 
 /// @ingroup ir
-using IREntity = std::variant<IRObject, IRScalar, IREnumeration, IRArray,
-                              IRTuple, IRImpossible>;
+using IREntity = std::variant<IRObject, IRScalar, IREnumeration, IRUnion,
+                              IRArray, IRTuple, IRImpossible>;
 
 /// @ingroup ir
 using IRResult = std::vector<IREntity>;
