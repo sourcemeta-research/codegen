@@ -344,3 +344,101 @@ TEST(Generator_typescript, enumeration_with_array) {
 
   EXPECT_EQ(output.str(), "export type Data = 1 | [ 1, 2, 3 ];\n");
 }
+
+TEST(Generator_typescript, union_at_root) {
+  using namespace sourcemeta::codegen;
+
+  IRResult result;
+
+  result.emplace_back(IRScalar{
+      {sourcemeta::core::Pointer{"anyOf", "0"},
+       sourcemeta::core::PointerTemplate{sourcemeta::core::Pointer{"0"}}},
+      IRScalarType::String});
+
+  result.emplace_back(IRScalar{
+      {sourcemeta::core::Pointer{"anyOf", "1"},
+       sourcemeta::core::PointerTemplate{sourcemeta::core::Pointer{"1"}}},
+      IRScalarType::String});
+
+  IRUnion my_union;
+  my_union.pointer = {};
+  my_union.instance_location = {};
+  my_union.values.push_back(
+      {sourcemeta::core::Pointer{"anyOf", "0"},
+       sourcemeta::core::PointerTemplate{sourcemeta::core::Pointer{"0"}}});
+  my_union.values.push_back(
+      {sourcemeta::core::Pointer{"anyOf", "1"},
+       sourcemeta::core::PointerTemplate{sourcemeta::core::Pointer{"1"}}});
+  result.emplace_back(std::move(my_union));
+
+  std::ostringstream output;
+  typescript(output, result, "MyUnion");
+
+  const auto expected{R"TS(export type MyUnion_0 = string;
+
+export type MyUnion_1 = string;
+
+export type MyUnion = MyUnion_0 | MyUnion_1;
+)TS"};
+
+  EXPECT_EQ(output.str(), expected);
+}
+
+TEST(Generator_typescript, union_nested_in_object) {
+  using namespace sourcemeta::codegen;
+
+  IRResult result;
+
+  result.emplace_back(
+      IRScalar{{sourcemeta::core::Pointer{"properties", "value", "anyOf", "0"},
+                sourcemeta::core::PointerTemplate{
+                    sourcemeta::core::Pointer{"value", "0"}}},
+               IRScalarType::String});
+
+  result.emplace_back(
+      IRScalar{{sourcemeta::core::Pointer{"properties", "value", "anyOf", "1"},
+                sourcemeta::core::PointerTemplate{
+                    sourcemeta::core::Pointer{"value", "1"}}},
+               IRScalarType::String});
+
+  IRUnion my_union;
+  my_union.pointer = sourcemeta::core::Pointer{"properties", "value"};
+  my_union.instance_location =
+      sourcemeta::core::PointerTemplate{sourcemeta::core::Pointer{"value"}};
+  my_union.values.push_back(
+      {sourcemeta::core::Pointer{"properties", "value", "anyOf", "0"},
+       sourcemeta::core::PointerTemplate{
+           sourcemeta::core::Pointer{"value", "0"}}});
+  my_union.values.push_back(
+      {sourcemeta::core::Pointer{"properties", "value", "anyOf", "1"},
+       sourcemeta::core::PointerTemplate{
+           sourcemeta::core::Pointer{"value", "1"}}});
+  result.emplace_back(std::move(my_union));
+
+  IRObject object;
+  object.pointer = {};
+  object.instance_location = {};
+  object.members.emplace(
+      "value", IRObjectValue{{sourcemeta::core::Pointer{"properties", "value"},
+                              sourcemeta::core::PointerTemplate{
+                                  sourcemeta::core::Pointer{"value"}}},
+                             false,
+                             false});
+  result.emplace_back(std::move(object));
+
+  std::ostringstream output;
+  typescript(output, result, "MyObject");
+
+  const auto expected{R"TS(export type MyObject_Value_0 = string;
+
+export type MyObject_Value_1 = string;
+
+export type MyObject_Value = MyObject_Value_0 | MyObject_Value_1;
+
+export interface MyObject {
+  value?: MyObject_Value;
+}
+)TS"};
+
+  EXPECT_EQ(output.str(), expected);
+}

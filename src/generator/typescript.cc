@@ -101,8 +101,19 @@ public:
     this->output << "];\n";
   }
 
-  auto operator()(const IRUnion &) const -> void {
-    // TODO: Implement IRUnion support
+  auto operator()(const IRUnion &entry) const -> void {
+    this->output << "export type "
+                 << to_pascal_case(entry.instance_location, this->prefix)
+                 << " = ";
+
+    const char *separator{""};
+    for (const auto &value : entry.values) {
+      this->output << separator
+                   << to_pascal_case(value.instance_location, this->prefix);
+      separator = " | ";
+    }
+
+    this->output << ";\n";
   }
 
 private:
