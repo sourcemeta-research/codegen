@@ -73,3 +73,78 @@ TEST(Generator_typescript, impossible_nested) {
 
   EXPECT_EQ(output.str(), "export type MyType_Foo = never;\n");
 }
+
+TEST(Generator_typescript, array_at_root) {
+  using namespace sourcemeta::codegen;
+
+  IRResult result;
+
+  result.emplace_back(IRScalar{
+      {sourcemeta::core::Pointer{"items"},
+       sourcemeta::core::PointerTemplate{sourcemeta::core::Pointer{"0"}}},
+      IRScalarType::String});
+
+  IRArray array;
+  array.pointer = {};
+  array.instance_location = {};
+  array.items.pointer = sourcemeta::core::Pointer{"items"};
+  array.items.instance_location =
+      sourcemeta::core::PointerTemplate{sourcemeta::core::Pointer{"0"}};
+  result.emplace_back(std::move(array));
+
+  std::ostringstream output;
+  typescript(output, result, "MyArray");
+
+  const auto expected{R"TS(export type MyArray_0 = string;
+
+export type MyArray = MyArray_0[];
+)TS"};
+
+  EXPECT_EQ(output.str(), expected);
+}
+
+TEST(Generator_typescript, array_nested_in_object) {
+  using namespace sourcemeta::codegen;
+
+  IRResult result;
+
+  result.emplace_back(
+      IRScalar{{sourcemeta::core::Pointer{"properties", "tags", "items"},
+                sourcemeta::core::PointerTemplate{
+                    sourcemeta::core::Pointer{"tags", "0"}}},
+               IRScalarType::String});
+
+  IRArray array;
+  array.pointer = sourcemeta::core::Pointer{"properties", "tags"};
+  array.instance_location =
+      sourcemeta::core::PointerTemplate{sourcemeta::core::Pointer{"tags"}};
+  array.items.pointer =
+      sourcemeta::core::Pointer{"properties", "tags", "items"};
+  array.items.instance_location =
+      sourcemeta::core::PointerTemplate{sourcemeta::core::Pointer{"tags", "0"}};
+  result.emplace_back(std::move(array));
+
+  IRObject object;
+  object.instance_location = {};
+  object.members.emplace(
+      "tags", IRObjectValue{{sourcemeta::core::Pointer{"properties", "tags"},
+                             sourcemeta::core::PointerTemplate{
+                                 sourcemeta::core::Pointer{"tags"}}},
+                            false,
+                            false});
+  result.emplace_back(std::move(object));
+
+  std::ostringstream output;
+  typescript(output, result, "MyObject");
+
+  const auto expected{R"TS(export type MyObject_Tags_0 = string;
+
+export type MyObject_Tags = MyObject_Tags_0[];
+
+export interface MyObject {
+  tags?: MyObject_Tags;
+}
+)TS"};
+
+  EXPECT_EQ(output.str(), expected);
+}

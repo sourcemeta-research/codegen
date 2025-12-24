@@ -52,6 +52,14 @@ static auto handle_ir_impossible(std::ostream &output,
          << " = never;\n";
 }
 
+static auto handle_ir_array(std::ostream &output, const IRArray &entry,
+                            const std::string &default_namespace) -> void {
+  output << "export type "
+         << to_pascal_case(entry.instance_location, default_namespace) << " = "
+         << to_pascal_case(entry.items.instance_location, default_namespace)
+         << "[];\n";
+}
+
 auto typescript(std::ostream &output, const IRResult &result,
                 const std::optional<std::string> &default_namespace) -> void {
   const std::string ns{default_namespace.value_or("Schema")};
@@ -67,6 +75,8 @@ auto typescript(std::ostream &output, const IRResult &result,
       handle_ir_object(output, *object, ns);
     } else if (const auto *impossible = std::get_if<IRImpossible>(&entity)) {
       handle_ir_impossible(output, *impossible, ns);
+    } else if (const auto *array = std::get_if<IRArray>(&entity)) {
+      handle_ir_array(output, *array, ns);
     }
   }
 }
