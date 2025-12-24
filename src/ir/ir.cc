@@ -68,7 +68,7 @@ auto compile(
   }
 
   // --------------------------------------------------------------------------
-  // (6) Sort entries so that dependencies come before dependents
+  // (5) Sort entries so that dependencies come before dependents
   // --------------------------------------------------------------------------
 
   std::ranges::sort(
