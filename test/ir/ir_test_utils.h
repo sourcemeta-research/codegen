@@ -1,6 +1,8 @@
 #ifndef SOURCEMETA_CODEGEN_IR_TEST_UTILS_H_
 #define SOURCEMETA_CODEGEN_IR_TEST_UTILS_H_
 
+// TODO: Have macros for objects and enumerations
+
 #define EXPECT_AS_STRING(actual, expected)                                     \
   EXPECT_EQ(sourcemeta::core::to_string(actual), expected)
 
