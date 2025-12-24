@@ -233,13 +233,16 @@ TEST(IR_2020_12, enum_string_values) {
 
   EXPECT_EQ(result.size(), 1);
 
-  EXPECT_TRUE(std::holds_alternative<IRUnion>(result.at(0)));
-  EXPECT_AS_STRING(std::get<IRUnion>(result.at(0)).pointer, "");
-  EXPECT_AS_STRING(std::get<IRUnion>(result.at(0)).instance_location, "");
-  EXPECT_EQ(std::get<IRUnion>(result.at(0)).values.size(), 3);
-  EXPECT_EQ(std::get<IRUnion>(result.at(0)).values.at(0).to_string(), "foo");
-  EXPECT_EQ(std::get<IRUnion>(result.at(0)).values.at(1).to_string(), "bar");
-  EXPECT_EQ(std::get<IRUnion>(result.at(0)).values.at(2).to_string(), "baz");
+  EXPECT_TRUE(std::holds_alternative<IREnumeration>(result.at(0)));
+  EXPECT_AS_STRING(std::get<IREnumeration>(result.at(0)).pointer, "");
+  EXPECT_AS_STRING(std::get<IREnumeration>(result.at(0)).instance_location, "");
+  EXPECT_EQ(std::get<IREnumeration>(result.at(0)).values.size(), 3);
+  EXPECT_EQ(std::get<IREnumeration>(result.at(0)).values.at(0).to_string(),
+            "foo");
+  EXPECT_EQ(std::get<IREnumeration>(result.at(0)).values.at(1).to_string(),
+            "bar");
+  EXPECT_EQ(std::get<IREnumeration>(result.at(0)).values.at(2).to_string(),
+            "baz");
 }
 
 TEST(IR_2020_12, const_null) {
@@ -278,11 +281,12 @@ TEST(IR_2020_12, const_string) {
 
   EXPECT_EQ(result.size(), 1);
 
-  EXPECT_TRUE(std::holds_alternative<IRUnion>(result.at(0)));
-  EXPECT_AS_STRING(std::get<IRUnion>(result.at(0)).pointer, "");
-  EXPECT_AS_STRING(std::get<IRUnion>(result.at(0)).instance_location, "");
-  EXPECT_EQ(std::get<IRUnion>(result.at(0)).values.size(), 1);
-  EXPECT_EQ(std::get<IRUnion>(result.at(0)).values.at(0).to_string(), "hello");
+  EXPECT_TRUE(std::holds_alternative<IREnumeration>(result.at(0)));
+  EXPECT_AS_STRING(std::get<IREnumeration>(result.at(0)).pointer, "");
+  EXPECT_AS_STRING(std::get<IREnumeration>(result.at(0)).instance_location, "");
+  EXPECT_EQ(std::get<IREnumeration>(result.at(0)).values.size(), 1);
+  EXPECT_EQ(std::get<IREnumeration>(result.at(0)).values.at(0).to_string(),
+            "hello");
 }
 
 TEST(IR_2020_12, const_integer) {
@@ -300,11 +304,12 @@ TEST(IR_2020_12, const_integer) {
 
   EXPECT_EQ(result.size(), 1);
 
-  EXPECT_TRUE(std::holds_alternative<IRUnion>(result.at(0)));
-  EXPECT_AS_STRING(std::get<IRUnion>(result.at(0)).pointer, "");
-  EXPECT_AS_STRING(std::get<IRUnion>(result.at(0)).instance_location, "");
-  EXPECT_EQ(std::get<IRUnion>(result.at(0)).values.size(), 1);
-  EXPECT_EQ(std::get<IRUnion>(result.at(0)).values.at(0).to_integer(), 42);
+  EXPECT_TRUE(std::holds_alternative<IREnumeration>(result.at(0)));
+  EXPECT_AS_STRING(std::get<IREnumeration>(result.at(0)).pointer, "");
+  EXPECT_AS_STRING(std::get<IREnumeration>(result.at(0)).instance_location, "");
+  EXPECT_EQ(std::get<IREnumeration>(result.at(0)).values.size(), 1);
+  EXPECT_EQ(std::get<IREnumeration>(result.at(0)).values.at(0).to_integer(),
+            42);
 }
 
 TEST(IR_2020_12, const_boolean_true) {
@@ -322,11 +327,11 @@ TEST(IR_2020_12, const_boolean_true) {
 
   EXPECT_EQ(result.size(), 1);
 
-  EXPECT_TRUE(std::holds_alternative<IRUnion>(result.at(0)));
-  EXPECT_AS_STRING(std::get<IRUnion>(result.at(0)).pointer, "");
-  EXPECT_AS_STRING(std::get<IRUnion>(result.at(0)).instance_location, "");
-  EXPECT_EQ(std::get<IRUnion>(result.at(0)).values.size(), 1);
-  EXPECT_TRUE(std::get<IRUnion>(result.at(0)).values.at(0).to_boolean());
+  EXPECT_TRUE(std::holds_alternative<IREnumeration>(result.at(0)));
+  EXPECT_AS_STRING(std::get<IREnumeration>(result.at(0)).pointer, "");
+  EXPECT_AS_STRING(std::get<IREnumeration>(result.at(0)).instance_location, "");
+  EXPECT_EQ(std::get<IREnumeration>(result.at(0)).values.size(), 1);
+  EXPECT_TRUE(std::get<IREnumeration>(result.at(0)).values.at(0).to_boolean());
 }
 
 TEST(IR_2020_12, object_type_only) {

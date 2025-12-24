@@ -46,7 +46,7 @@ struct IRScalar : IRType {
 };
 
 /// @ingroup ir
-struct IRUnion : IRType {
+struct IREnumeration : IRType {
   std::vector<sourcemeta::core::JSON> values;
 };
 
@@ -77,8 +77,8 @@ struct IRTuple : IRType {
 struct IRImpossible : IRType {};
 
 /// @ingroup ir
-using IREntity =
-    std::variant<IRObject, IRScalar, IRUnion, IRArray, IRTuple, IRImpossible>;
+using IREntity = std::variant<IRObject, IRScalar, IREnumeration, IRArray,
+                              IRTuple, IRImpossible>;
 
 /// @ingroup ir
 using IRResult = std::vector<IREntity>;

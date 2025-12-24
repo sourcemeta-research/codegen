@@ -293,8 +293,9 @@ auto handle_enum(const sourcemeta::core::JSON &schema,
 
   std::vector<sourcemeta::core::JSON> values{enum_json.as_array().cbegin(),
                                              enum_json.as_array().cend()};
-  return IRUnion{{.pointer = pointer, .instance_location = instance_location},
-                 std::move(values)};
+  return IREnumeration{
+      {.pointer = pointer, .instance_location = instance_location},
+      std::move(values)};
 }
 
 auto handle_anyof(const sourcemeta::core::JSON &schema,
