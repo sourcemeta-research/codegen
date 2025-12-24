@@ -167,8 +167,43 @@ auto handle_array(const sourcemeta::core::JSON &schema,
   if (vocabularies.contains(
           Vocabularies::Known::JSON_Schema_2020_12_Applicator) &&
       subschema.defines("prefixItems")) {
-    throw UnexpectedSchema(schema, pointer,
-                           "We do not support prefixItems yet");
+    const auto &prefix_items{subschema.at("prefixItems")};
+    assert(prefix_items.is_array());
+
+    std::vector<IRType> tuple_items;
+    for (std::size_t index = 0; index < prefix_items.size(); ++index) {
+      auto item_pointer{pointer};
+      item_pointer.push_back("prefixItems");
+      item_pointer.push_back(index);
+
+      auto item_instance_location{instance_location};
+      item_instance_location.emplace_back(
+          sourcemeta::core::PointerTemplate::Condition{.suffix =
+                                                           "prefixItems"});
+      item_instance_location.emplace_back(index);
+
+      tuple_items.push_back({.pointer = item_pointer,
+                             .instance_location = item_instance_location});
+    }
+
+    std::optional<IRType> additional{std::nullopt};
+    if (subschema.defines("items")) {
+      auto additional_pointer{pointer};
+      additional_pointer.push_back("items");
+
+      auto additional_instance_location{instance_location};
+      additional_instance_location.emplace_back(
+          sourcemeta::core::PointerTemplate::Condition{.suffix = "items"});
+      additional_instance_location.emplace_back(
+          sourcemeta::core::PointerTemplate::Wildcard::Item);
+
+      additional = IRType{.pointer = additional_pointer,
+                          .instance_location = additional_instance_location};
+    }
+
+    return IRTuple{{.pointer = pointer, .instance_location = instance_location},
+                   std::move(tuple_items),
+                   std::move(additional)};
   }
 
   if (vocabularies.contains_any(
@@ -177,9 +212,43 @@ auto handle_array(const sourcemeta::core::JSON &schema,
            Vocabularies::Known::JSON_Schema_Draft_6,
            Vocabularies::Known::JSON_Schema_Draft_4,
            Vocabularies::Known::JSON_Schema_Draft_3}) &&
-      subschema.defines("additionalItems")) {
-    throw UnexpectedSchema(schema, pointer,
-                           "We do not support additionalItems yet");
+      subschema.defines("items") && subschema.at("items").is_array()) {
+    const auto &items_array{subschema.at("items")};
+
+    std::vector<IRType> tuple_items;
+    for (std::size_t index = 0; index < items_array.size(); ++index) {
+      auto item_pointer{pointer};
+      item_pointer.push_back("items");
+      item_pointer.push_back(index);
+
+      auto item_instance_location{instance_location};
+      item_instance_location.emplace_back(
+          sourcemeta::core::PointerTemplate::Condition{.suffix = "items"});
+      item_instance_location.emplace_back(index);
+
+      tuple_items.push_back({.pointer = item_pointer,
+                             .instance_location = item_instance_location});
+    }
+
+    std::optional<IRType> additional{std::nullopt};
+    if (subschema.defines("additionalItems")) {
+      auto additional_pointer{pointer};
+      additional_pointer.push_back("additionalItems");
+
+      auto additional_instance_location{instance_location};
+      additional_instance_location.emplace_back(
+          sourcemeta::core::PointerTemplate::Condition{.suffix =
+                                                           "additionalItems"});
+      additional_instance_location.emplace_back(
+          sourcemeta::core::PointerTemplate::Wildcard::Item);
+
+      additional = IRType{.pointer = additional_pointer,
+                          .instance_location = additional_instance_location};
+    }
+
+    return IRTuple{{.pointer = pointer, .instance_location = instance_location},
+                   std::move(tuple_items),
+                   std::move(additional)};
   }
 
   assert(subschema.defines("items"));

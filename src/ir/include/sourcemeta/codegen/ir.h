@@ -68,11 +68,17 @@ struct IRArray : IRType {
 };
 
 /// @ingroup ir
+struct IRTuple : IRType {
+  std::vector<IRType> items;
+  std::optional<IRType> additional;
+};
+
+/// @ingroup ir
 struct IRImpossible : IRType {};
 
 /// @ingroup ir
 using IREntity =
-    std::variant<IRObject, IRScalar, IRUnion, IRArray, IRImpossible>;
+    std::variant<IRObject, IRScalar, IRUnion, IRArray, IRTuple, IRImpossible>;
 
 /// @ingroup ir
 using IRResult = std::vector<IREntity>;

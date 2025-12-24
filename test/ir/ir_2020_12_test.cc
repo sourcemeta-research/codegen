@@ -590,3 +590,96 @@ TEST(IR_2020_12, array_nested_in_object) {
   EXPECT_AS_STRING(std::get<IRObject>(result.at(2)).pointer, "");
   EXPECT_AS_STRING(std::get<IRObject>(result.at(2)).instance_location, "");
 }
+
+TEST(IR_2020_12, tuple_with_prefix_items) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "array",
+    "prefixItems": [
+      { "type": "string" },
+      { "type": "integer" }
+    ]
+  })JSON")};
+
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
+
+  using namespace sourcemeta::codegen;
+
+  EXPECT_EQ(result.size(), 3);
+
+  EXPECT_TRUE(std::holds_alternative<IRScalar>(result.at(0)));
+  EXPECT_AS_STRING(std::get<IRScalar>(result.at(0)).pointer, "/prefixItems/1");
+  EXPECT_AS_STRING(std::get<IRScalar>(result.at(0)).instance_location, "/1");
+  EXPECT_EQ(std::get<IRScalar>(result.at(0)).value, IRScalarType::Integer);
+
+  EXPECT_TRUE(std::holds_alternative<IRScalar>(result.at(1)));
+  EXPECT_AS_STRING(std::get<IRScalar>(result.at(1)).pointer, "/prefixItems/0");
+  EXPECT_AS_STRING(std::get<IRScalar>(result.at(1)).instance_location, "/0");
+  EXPECT_EQ(std::get<IRScalar>(result.at(1)).value, IRScalarType::String);
+
+  EXPECT_TRUE(std::holds_alternative<IRTuple>(result.at(2)));
+  EXPECT_AS_STRING(std::get<IRTuple>(result.at(2)).pointer, "");
+  EXPECT_AS_STRING(std::get<IRTuple>(result.at(2)).instance_location, "");
+  EXPECT_EQ(std::get<IRTuple>(result.at(2)).items.size(), 2);
+  EXPECT_AS_STRING(std::get<IRTuple>(result.at(2)).items.at(0).pointer,
+                   "/prefixItems/0");
+  EXPECT_AS_STRING(
+      std::get<IRTuple>(result.at(2)).items.at(0).instance_location,
+      "/~?prefixItems~/0");
+  EXPECT_AS_STRING(std::get<IRTuple>(result.at(2)).items.at(1).pointer,
+                   "/prefixItems/1");
+  EXPECT_AS_STRING(
+      std::get<IRTuple>(result.at(2)).items.at(1).instance_location,
+      "/~?prefixItems~/1");
+  EXPECT_FALSE(std::get<IRTuple>(result.at(2)).additional.has_value());
+}
+
+TEST(IR_2020_12, tuple_with_prefix_items_and_items) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "array",
+    "prefixItems": [
+      { "type": "string" }
+    ],
+    "items": { "type": "boolean" }
+  })JSON")};
+
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
+
+  using namespace sourcemeta::codegen;
+
+  EXPECT_EQ(result.size(), 3);
+
+  EXPECT_TRUE(std::holds_alternative<IRScalar>(result.at(0)));
+  EXPECT_AS_STRING(std::get<IRScalar>(result.at(0)).pointer, "/prefixItems/0");
+  EXPECT_AS_STRING(std::get<IRScalar>(result.at(0)).instance_location, "/0");
+  EXPECT_EQ(std::get<IRScalar>(result.at(0)).value, IRScalarType::String);
+
+  EXPECT_TRUE(std::holds_alternative<IRScalar>(result.at(1)));
+  EXPECT_AS_STRING(std::get<IRScalar>(result.at(1)).pointer, "/items");
+  EXPECT_AS_STRING(std::get<IRScalar>(result.at(1)).instance_location,
+                   "/~?items~/~I~");
+  EXPECT_EQ(std::get<IRScalar>(result.at(1)).value, IRScalarType::Boolean);
+
+  EXPECT_TRUE(std::holds_alternative<IRTuple>(result.at(2)));
+  EXPECT_AS_STRING(std::get<IRTuple>(result.at(2)).pointer, "");
+  EXPECT_AS_STRING(std::get<IRTuple>(result.at(2)).instance_location, "");
+  EXPECT_EQ(std::get<IRTuple>(result.at(2)).items.size(), 1);
+  EXPECT_AS_STRING(std::get<IRTuple>(result.at(2)).items.at(0).pointer,
+                   "/prefixItems/0");
+  EXPECT_AS_STRING(
+      std::get<IRTuple>(result.at(2)).items.at(0).instance_location,
+      "/~?prefixItems~/0");
+  EXPECT_TRUE(std::get<IRTuple>(result.at(2)).additional.has_value());
+  EXPECT_AS_STRING(std::get<IRTuple>(result.at(2)).additional->pointer,
+                   "/items");
+  EXPECT_AS_STRING(
+      std::get<IRTuple>(result.at(2)).additional->instance_location,
+      "/~?items~/~I~");
+}
