@@ -155,12 +155,50 @@ auto handle_number(const sourcemeta::core::JSON &schema,
 }
 
 auto handle_array(const sourcemeta::core::JSON &schema,
-                  const sourcemeta::core::Vocabularies &,
-                  const sourcemeta::core::JSON &,
+                  const sourcemeta::core::Vocabularies &vocabularies,
+                  const sourcemeta::core::JSON &subschema,
                   const sourcemeta::core::Pointer &pointer,
-                  const sourcemeta::core::PointerTemplate &) -> IREntity {
-  throw UnexpectedSchema(schema, pointer,
-                         "We do not support this type of subschema yet");
+                  const sourcemeta::core::PointerTemplate &instance_location)
+    -> IREntity {
+  ONLY_WHITELIST_KEYWORDS(schema, subschema, pointer,
+                          {"$schema", "$id", "type", "items", "minItems",
+                           "maxItems", "uniqueItems", "contains", "minContains",
+                           "maxContains", "additionalItems", "prefixItems"});
+
+  using Vocabularies = sourcemeta::core::Vocabularies;
+
+  if (vocabularies.contains(
+          Vocabularies::Known::JSON_Schema_2020_12_Applicator) &&
+      subschema.defines("prefixItems")) {
+    throw UnexpectedSchema(schema, pointer,
+                           "We do not support prefixItems yet");
+  }
+
+  if (vocabularies.contains_any(
+          {Vocabularies::Known::JSON_Schema_2019_09_Applicator,
+           Vocabularies::Known::JSON_Schema_Draft_7,
+           Vocabularies::Known::JSON_Schema_Draft_6,
+           Vocabularies::Known::JSON_Schema_Draft_4,
+           Vocabularies::Known::JSON_Schema_Draft_3}) &&
+      subschema.defines("additionalItems")) {
+    throw UnexpectedSchema(schema, pointer,
+                           "We do not support additionalItems yet");
+  }
+
+  assert(subschema.defines("items"));
+  auto items_pointer{pointer};
+  items_pointer.push_back("items");
+  auto items_instance_location{instance_location};
+  items_instance_location.emplace_back(
+      sourcemeta::core::PointerTemplate::Condition{.suffix = "items"});
+  items_instance_location.emplace_back(
+      sourcemeta::core::PointerTemplate::Wildcard::Item);
+
+  return IRArray{
+      .pointer = pointer,
+      .instance_location = instance_location,
+      .items = IRArrayValue{.pointer = items_pointer,
+                            .instance_location = items_instance_location}};
 }
 
 auto handle_enum(const sourcemeta::core::JSON &schema,

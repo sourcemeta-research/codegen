@@ -519,3 +519,74 @@ TEST(IR_2020_12, object_with_impossible_additional_properties) {
       std::get<IRObject>(result.at(2)).additional->instance_location,
       "/~?additionalProperties~/~P~");
 }
+
+TEST(IR_2020_12, array_with_items) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "array",
+    "items": { "type": "string" }
+  })JSON")};
+
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
+
+  using namespace sourcemeta::codegen;
+
+  EXPECT_EQ(result.size(), 2);
+
+  EXPECT_TRUE(std::holds_alternative<IRScalar>(result.at(0)));
+  EXPECT_AS_STRING(std::get<IRScalar>(result.at(0)).pointer, "/items");
+  EXPECT_AS_STRING(std::get<IRScalar>(result.at(0)).instance_location,
+                   "/~?items~/~I~");
+  EXPECT_EQ(std::get<IRScalar>(result.at(0)).value, IRScalarType::String);
+
+  EXPECT_TRUE(std::holds_alternative<IRArray>(result.at(1)));
+  EXPECT_AS_STRING(std::get<IRArray>(result.at(1)).pointer, "");
+  EXPECT_AS_STRING(std::get<IRArray>(result.at(1)).instance_location, "");
+  EXPECT_AS_STRING(std::get<IRArray>(result.at(1)).items.pointer, "/items");
+  EXPECT_AS_STRING(std::get<IRArray>(result.at(1)).items.instance_location,
+                   "/~?items~/~I~");
+}
+
+TEST(IR_2020_12, array_nested_in_object) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "tags": {
+        "type": "array",
+        "items": { "type": "string" }
+      }
+    }
+  })JSON")};
+
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
+
+  using namespace sourcemeta::codegen;
+
+  EXPECT_EQ(result.size(), 3);
+
+  EXPECT_TRUE(std::holds_alternative<IRScalar>(result.at(0)));
+  EXPECT_AS_STRING(std::get<IRScalar>(result.at(0)).pointer,
+                   "/properties/tags/items");
+  EXPECT_AS_STRING(std::get<IRScalar>(result.at(0)).instance_location,
+                   "/tags/~?items~/~I~");
+  EXPECT_EQ(std::get<IRScalar>(result.at(0)).value, IRScalarType::String);
+
+  EXPECT_TRUE(std::holds_alternative<IRArray>(result.at(1)));
+  EXPECT_AS_STRING(std::get<IRArray>(result.at(1)).pointer, "/properties/tags");
+  EXPECT_AS_STRING(std::get<IRArray>(result.at(1)).instance_location, "/tags");
+  EXPECT_AS_STRING(std::get<IRArray>(result.at(1)).items.pointer,
+                   "/properties/tags/items");
+  EXPECT_AS_STRING(std::get<IRArray>(result.at(1)).items.instance_location,
+                   "/tags/~?items~/~I~");
+
+  EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(2)));
+  EXPECT_AS_STRING(std::get<IRObject>(result.at(2)).pointer, "");
+  EXPECT_AS_STRING(std::get<IRObject>(result.at(2)).instance_location, "");
+}

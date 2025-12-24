@@ -65,13 +65,27 @@ struct IRObject {
 };
 
 /// @ingroup ir
+struct IRArrayValue {
+  sourcemeta::core::Pointer pointer;
+  sourcemeta::core::PointerTemplate instance_location;
+};
+
+/// @ingroup ir
+struct IRArray {
+  sourcemeta::core::Pointer pointer;
+  sourcemeta::core::PointerTemplate instance_location;
+  IRArrayValue items;
+};
+
+/// @ingroup ir
 struct IRImpossible {
   sourcemeta::core::Pointer pointer;
   sourcemeta::core::PointerTemplate instance_location;
 };
 
 /// @ingroup ir
-using IREntity = std::variant<IRObject, IRScalar, IRUnion, IRImpossible>;
+using IREntity =
+    std::variant<IRObject, IRScalar, IRUnion, IRArray, IRImpossible>;
 
 /// @ingroup ir
 using IRResult = std::vector<IREntity>;
