@@ -148,3 +148,81 @@ export interface MyObject {
 
   EXPECT_EQ(output.str(), expected);
 }
+
+TEST(Generator_typescript, tuple_without_additional) {
+  using namespace sourcemeta::codegen;
+
+  IRResult result;
+
+  result.emplace_back(IRScalar{
+      {sourcemeta::core::Pointer{"prefixItems", "0"},
+       sourcemeta::core::PointerTemplate{sourcemeta::core::Pointer{"0"}}},
+      IRScalarType::String});
+
+  result.emplace_back(IRScalar{
+      {sourcemeta::core::Pointer{"prefixItems", "1"},
+       sourcemeta::core::PointerTemplate{sourcemeta::core::Pointer{"1"}}},
+      IRScalarType::String});
+
+  IRTuple tuple;
+  tuple.pointer = {};
+  tuple.instance_location = {};
+  tuple.items.push_back(
+      {sourcemeta::core::Pointer{"prefixItems", "0"},
+       sourcemeta::core::PointerTemplate{sourcemeta::core::Pointer{"0"}}});
+  tuple.items.push_back(
+      {sourcemeta::core::Pointer{"prefixItems", "1"},
+       sourcemeta::core::PointerTemplate{sourcemeta::core::Pointer{"1"}}});
+  result.emplace_back(std::move(tuple));
+
+  std::ostringstream output;
+  typescript(output, result, "MyTuple");
+
+  const auto expected{R"TS(export type MyTuple_0 = string;
+
+export type MyTuple_1 = string;
+
+export type MyTuple = [MyTuple_0, MyTuple_1];
+)TS"};
+
+  EXPECT_EQ(output.str(), expected);
+}
+
+TEST(Generator_typescript, tuple_with_additional) {
+  using namespace sourcemeta::codegen;
+
+  IRResult result;
+
+  result.emplace_back(IRScalar{
+      {sourcemeta::core::Pointer{"prefixItems", "0"},
+       sourcemeta::core::PointerTemplate{sourcemeta::core::Pointer{"0"}}},
+      IRScalarType::String});
+
+  result.emplace_back(IRScalar{
+      {sourcemeta::core::Pointer{"items"},
+       sourcemeta::core::PointerTemplate{sourcemeta::core::Pointer{"1"}}},
+      IRScalarType::String});
+
+  IRTuple tuple;
+  tuple.pointer = {};
+  tuple.instance_location = {};
+  tuple.items.push_back(
+      {sourcemeta::core::Pointer{"prefixItems", "0"},
+       sourcemeta::core::PointerTemplate{sourcemeta::core::Pointer{"0"}}});
+  tuple.additional =
+      IRType{sourcemeta::core::Pointer{"items"},
+             sourcemeta::core::PointerTemplate{sourcemeta::core::Pointer{"1"}}};
+  result.emplace_back(std::move(tuple));
+
+  std::ostringstream output;
+  typescript(output, result, "MyTuple");
+
+  const auto expected{R"TS(export type MyTuple_0 = string;
+
+export type MyTuple_1 = string;
+
+export type MyTuple = [MyTuple_0, ...MyTuple_1[]];
+)TS"};
+
+  EXPECT_EQ(output.str(), expected);
+}

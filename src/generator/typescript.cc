@@ -60,6 +60,29 @@ static auto handle_ir_array(std::ostream &output, const IRArray &entry,
          << "[];\n";
 }
 
+static auto handle_ir_tuple(std::ostream &output, const IRTuple &entry,
+                            const std::string &default_namespace) -> void {
+  output << "export type "
+         << to_pascal_case(entry.instance_location, default_namespace)
+         << " = [";
+
+  const char *separator{""};
+  for (const auto &item : entry.items) {
+    output << separator
+           << to_pascal_case(item.instance_location, default_namespace);
+    separator = ", ";
+  }
+
+  if (entry.additional.has_value()) {
+    output << separator << "..."
+           << to_pascal_case(entry.additional->instance_location,
+                             default_namespace)
+           << "[]";
+  }
+
+  output << "];\n";
+}
+
 auto typescript(std::ostream &output, const IRResult &result,
                 const std::optional<std::string> &default_namespace) -> void {
   const std::string ns{default_namespace.value_or("Schema")};
@@ -77,6 +100,8 @@ auto typescript(std::ostream &output, const IRResult &result,
       handle_ir_impossible(output, *impossible, ns);
     } else if (const auto *array = std::get_if<IRArray>(&entity)) {
       handle_ir_array(output, *array, ns);
+    } else if (const auto *tuple = std::get_if<IRTuple>(&entity)) {
+      handle_ir_tuple(output, *tuple, ns);
     }
   }
 }
