@@ -8,8 +8,7 @@ TEST(Generator_typescript, test_1) {
   using namespace sourcemeta::codegen;
 
   IRResult result;
-  result.emplace_back(
-      IRScalar{.instance_location = {}, .value = IRScalarType::String});
+  result.emplace_back(IRScalar{{}, IRScalarType::String});
 
   std::ostringstream output;
   typescript(output, result, "MyType");
@@ -23,18 +22,17 @@ TEST(Generator_typescript, test_2) {
   IRResult result;
 
   result.emplace_back(IRScalar{
-      .instance_location =
-          sourcemeta::core::PointerTemplate{sourcemeta::core::Pointer{"foo"}},
-      .value = IRScalarType::String});
+      {{}, sourcemeta::core::PointerTemplate{sourcemeta::core::Pointer{"foo"}}},
+      IRScalarType::String});
 
   IRObject object;
   object.instance_location = {};
-  object.members.emplace(
-      "foo",
-      IRObjectValue{.required = false,
-                    .immutable = false,
-                    .instance_location = sourcemeta::core::PointerTemplate{
-                        sourcemeta::core::Pointer{"foo"}}});
+  object.members.emplace("foo",
+                         IRObjectValue{{{},
+                                        sourcemeta::core::PointerTemplate{
+                                            sourcemeta::core::Pointer{"foo"}}},
+                                       false,
+                                       false});
   result.emplace_back(std::move(object));
 
   std::ostringstream output;
@@ -54,7 +52,7 @@ TEST(Generator_typescript, impossible_at_root) {
   using namespace sourcemeta::codegen;
 
   IRResult result;
-  result.emplace_back(IRImpossible{.pointer = {}, .instance_location = {}});
+  result.emplace_back(IRImpossible{{}});
 
   std::ostringstream output;
   typescript(output, result, "MyType");
@@ -67,9 +65,8 @@ TEST(Generator_typescript, impossible_nested) {
 
   IRResult result;
   result.emplace_back(IRImpossible{
-      .pointer = sourcemeta::core::Pointer{"foo"},
-      .instance_location =
-          sourcemeta::core::PointerTemplate{sourcemeta::core::Pointer{"foo"}}});
+      {sourcemeta::core::Pointer{"foo"},
+       sourcemeta::core::PointerTemplate{sourcemeta::core::Pointer{"foo"}}}});
 
   std::ostringstream output;
   typescript(output, result, "MyType");

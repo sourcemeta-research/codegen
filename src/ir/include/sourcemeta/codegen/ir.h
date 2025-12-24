@@ -35,53 +35,40 @@ enum class IRScalarType : std::uint8_t {
 };
 
 /// @ingroup ir
-struct IRScalar {
+struct IRType {
   sourcemeta::core::Pointer pointer;
   sourcemeta::core::PointerTemplate instance_location;
+};
+
+/// @ingroup ir
+struct IRScalar : IRType {
   IRScalarType value;
 };
 
 /// @ingroup ir
-struct IRUnion {
-  sourcemeta::core::Pointer pointer;
-  sourcemeta::core::PointerTemplate instance_location;
+struct IRUnion : IRType {
   std::vector<sourcemeta::core::JSON> values;
 };
 
 /// @ingroup ir
-struct IRObjectValue {
+struct IRObjectValue : IRType {
   bool required;
   bool immutable;
-  sourcemeta::core::Pointer pointer;
-  sourcemeta::core::PointerTemplate instance_location;
 };
 
 /// @ingroup ir
-struct IRObject {
-  sourcemeta::core::Pointer pointer;
-  sourcemeta::core::PointerTemplate instance_location;
+struct IRObject : IRType {
   std::unordered_map<sourcemeta::core::JSON::String, IRObjectValue> members;
   std::optional<IRObjectValue> additional;
 };
 
 /// @ingroup ir
-struct IRArrayValue {
-  sourcemeta::core::Pointer pointer;
-  sourcemeta::core::PointerTemplate instance_location;
+struct IRArray : IRType {
+  IRType items;
 };
 
 /// @ingroup ir
-struct IRArray {
-  sourcemeta::core::Pointer pointer;
-  sourcemeta::core::PointerTemplate instance_location;
-  IRArrayValue items;
-};
-
-/// @ingroup ir
-struct IRImpossible {
-  sourcemeta::core::Pointer pointer;
-  sourcemeta::core::PointerTemplate instance_location;
-};
+struct IRImpossible : IRType {};
 
 /// @ingroup ir
 using IREntity =

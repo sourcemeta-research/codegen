@@ -31,8 +31,8 @@ auto handle_impossible(
     const sourcemeta::core::JSON &, const sourcemeta::core::Pointer &pointer,
     const sourcemeta::core::PointerTemplate &instance_location)
     -> IRImpossible {
-  return IRImpossible{.pointer = pointer,
-                      .instance_location = instance_location};
+  return IRImpossible{
+      {.pointer = pointer, .instance_location = instance_location}};
 }
 
 auto handle_string(const sourcemeta::core::JSON &schema,
@@ -44,9 +44,8 @@ auto handle_string(const sourcemeta::core::JSON &schema,
   ONLY_WHITELIST_KEYWORDS(
       schema, subschema, pointer,
       {"$schema", "$id", "type", "minLength", "maxLength", "pattern"});
-  return IRScalar{.pointer = pointer,
-                  .instance_location = instance_location,
-                  .value = IRScalarType::String};
+  return IRScalar{{.pointer = pointer, .instance_location = instance_location},
+                  IRScalarType::String};
 }
 
 auto handle_object(const sourcemeta::core::JSON &schema,
@@ -91,10 +90,11 @@ auto handle_object(const sourcemeta::core::JSON &schema,
     property_instance_location.emplace_back(
         sourcemeta::core::Pointer::Token{entry.first});
 
-    IRObjectValue member_value{.required = required_set.contains(entry.first),
-                               .immutable = false,
-                               .pointer = property_pointer,
-                               .instance_location = property_instance_location};
+    IRObjectValue member_value{
+        {.pointer = property_pointer,
+         .instance_location = property_instance_location},
+        required_set.contains(entry.first),
+        false};
 
     members.emplace(entry.first, std::move(member_value));
   }
@@ -112,16 +112,15 @@ auto handle_object(const sourcemeta::core::JSON &schema,
         sourcemeta::core::PointerTemplate::Wildcard::Property);
 
     additional =
-        IRObjectValue{.required = false,
-                      .immutable = false,
-                      .pointer = additional_pointer,
-                      .instance_location = additional_instance_location};
+        IRObjectValue{{.pointer = additional_pointer,
+                       .instance_location = additional_instance_location},
+                      false,
+                      false};
   }
 
-  return IRObject{.pointer = pointer,
-                  .instance_location = instance_location,
-                  .members = std::move(members),
-                  .additional = std::move(additional)};
+  return IRObject{{.pointer = pointer, .instance_location = instance_location},
+                  std::move(members),
+                  std::move(additional)};
 }
 
 auto handle_integer(const sourcemeta::core::JSON &schema,
@@ -134,9 +133,8 @@ auto handle_integer(const sourcemeta::core::JSON &schema,
                           {"$schema", "$id", "type", "minimum", "maximum",
                            "exclusiveMinimum", "exclusiveMaximum",
                            "multipleOf"});
-  return IRScalar{.pointer = pointer,
-                  .instance_location = instance_location,
-                  .value = IRScalarType::Integer};
+  return IRScalar{{.pointer = pointer, .instance_location = instance_location},
+                  IRScalarType::Integer};
 }
 
 auto handle_number(const sourcemeta::core::JSON &schema,
@@ -149,9 +147,8 @@ auto handle_number(const sourcemeta::core::JSON &schema,
                           {"$schema", "$id", "type", "minimum", "maximum",
                            "exclusiveMinimum", "exclusiveMaximum",
                            "multipleOf"});
-  return IRScalar{.pointer = pointer,
-                  .instance_location = instance_location,
-                  .value = IRScalarType::Number};
+  return IRScalar{{.pointer = pointer, .instance_location = instance_location},
+                  IRScalarType::Number};
 }
 
 auto handle_array(const sourcemeta::core::JSON &schema,
@@ -195,10 +192,8 @@ auto handle_array(const sourcemeta::core::JSON &schema,
       sourcemeta::core::PointerTemplate::Wildcard::Item);
 
   return IRArray{
-      .pointer = pointer,
-      .instance_location = instance_location,
-      .items = IRArrayValue{.pointer = items_pointer,
-                            .instance_location = items_instance_location}};
+      {.pointer = pointer, .instance_location = instance_location},
+      {.pointer = items_pointer, .instance_location = items_instance_location}};
 }
 
 auto handle_enum(const sourcemeta::core::JSON &schema,
@@ -213,25 +208,24 @@ auto handle_enum(const sourcemeta::core::JSON &schema,
 
   // Boolean and null special cases
   if (enum_json.size() == 1 && enum_json.at(0).is_null()) {
-    return IRScalar{.pointer = pointer,
-                    .instance_location = instance_location,
-                    .value = IRScalarType::Null};
+    return IRScalar{
+        {.pointer = pointer, .instance_location = instance_location},
+        IRScalarType::Null};
   } else if (enum_json.size() == 2) {
     const auto &first{enum_json.at(0)};
     const auto &second{enum_json.at(1)};
     if ((first.is_boolean() && second.is_boolean()) &&
         (first.to_boolean() != second.to_boolean())) {
-      return IRScalar{.pointer = pointer,
-                      .instance_location = instance_location,
-                      .value = IRScalarType::Boolean};
+      return IRScalar{
+          {.pointer = pointer, .instance_location = instance_location},
+          IRScalarType::Boolean};
     }
   }
 
   std::vector<sourcemeta::core::JSON> values{enum_json.as_array().cbegin(),
                                              enum_json.as_array().cend()};
-  return IRUnion{.pointer = pointer,
-                 .instance_location = instance_location,
-                 .values = std::move(values)};
+  return IRUnion{{.pointer = pointer, .instance_location = instance_location},
+                 std::move(values)};
 }
 
 auto handle_anyof(const sourcemeta::core::JSON &schema,
