@@ -28,7 +28,7 @@ static auto handle_ir_enumeration(std::ostream &output,
   const char *separator{""};
   for (const auto &value : entry.values) {
     output << separator;
-    sourcemeta::core::stringify(value, output);
+    sourcemeta::core::prettify(value, output);
     separator = " | ";
   }
 

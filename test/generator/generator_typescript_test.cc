@@ -319,8 +319,12 @@ TEST(Generator_typescript, enumeration_with_object) {
   std::ostringstream output;
   typescript(output, result, "Config");
 
-  EXPECT_EQ(output.str(),
-            "export type Config = \"simple\" | {\"type\":\"complex\"};\n");
+  const auto expected{R"TS(export type Config = "simple" | {
+  "type": "complex"
+};
+)TS"};
+
+  EXPECT_EQ(output.str(), expected);
 }
 
 TEST(Generator_typescript, enumeration_with_array) {
@@ -338,5 +342,5 @@ TEST(Generator_typescript, enumeration_with_array) {
   std::ostringstream output;
   typescript(output, result, "Data");
 
-  EXPECT_EQ(output.str(), "export type Data = 1 | [1,2,3];\n");
+  EXPECT_EQ(output.str(), "export type Data = 1 | [ 1, 2, 3 ];\n");
 }
