@@ -89,7 +89,365 @@ TEST(Generator_typescript, object_with_optional_string_property) {
   const auto expected{R"TS(export type MyObject_Foo = string;
 
 export interface MyObject {
-  foo?: MyObject_Foo;
+  "foo"?: MyObject_Foo;
+}
+)TS"};
+
+  EXPECT_EQ(output.str(), expected);
+}
+
+TEST(Generator_typescript, object_property_with_quotes) {
+  using namespace sourcemeta::codegen;
+
+  IRResult result;
+
+  result.emplace_back(
+      IRScalar{{{},
+                sourcemeta::core::PointerTemplate{
+                    sourcemeta::core::Pointer{"say \"hello\""}}},
+               IRScalarType::String});
+
+  IRObject object;
+  object.instance_location = {};
+  object.members.emplace(
+      "say \"hello\"",
+      IRObjectValue{{{},
+                     sourcemeta::core::PointerTemplate{
+                         sourcemeta::core::Pointer{"say \"hello\""}}},
+                    false,
+                    false});
+  result.emplace_back(std::move(object));
+
+  std::ostringstream output;
+  generate<TypeScript>(output, result, "MyObject");
+
+  const auto expected{R"TS(export type MyObject_SayX20X22HelloX22 = string;
+
+export interface MyObject {
+  "say \"hello\""?: MyObject_SayX20X22HelloX22;
+}
+)TS"};
+
+  EXPECT_EQ(output.str(), expected);
+}
+
+TEST(Generator_typescript, object_property_with_backslash) {
+  using namespace sourcemeta::codegen;
+
+  IRResult result;
+
+  result.emplace_back(
+      IRScalar{{{},
+                sourcemeta::core::PointerTemplate{
+                    sourcemeta::core::Pointer{"path\\to\\file"}}},
+               IRScalarType::String});
+
+  IRObject object;
+  object.instance_location = {};
+  object.members.emplace(
+      "path\\to\\file",
+      IRObjectValue{{{},
+                     sourcemeta::core::PointerTemplate{
+                         sourcemeta::core::Pointer{"path\\to\\file"}}},
+                    false,
+                    false});
+  result.emplace_back(std::move(object));
+
+  std::ostringstream output;
+  generate<TypeScript>(output, result, "MyObject");
+
+  const auto expected{R"TS(export type MyObject_PathX5CToX5CFile = string;
+
+export interface MyObject {
+  "path\\to\\file"?: MyObject_PathX5CToX5CFile;
+}
+)TS"};
+
+  EXPECT_EQ(output.str(), expected);
+}
+
+TEST(Generator_typescript, object_property_with_newline) {
+  using namespace sourcemeta::codegen;
+
+  IRResult result;
+
+  result.emplace_back(IRScalar{{{},
+                                sourcemeta::core::PointerTemplate{
+                                    sourcemeta::core::Pointer{"line1\nline2"}}},
+                               IRScalarType::String});
+
+  IRObject object;
+  object.instance_location = {};
+  object.members.emplace(
+      "line1\nline2",
+      IRObjectValue{{{},
+                     sourcemeta::core::PointerTemplate{
+                         sourcemeta::core::Pointer{"line1\nline2"}}},
+                    false,
+                    false});
+  result.emplace_back(std::move(object));
+
+  std::ostringstream output;
+  generate<TypeScript>(output, result, "MyObject");
+
+  EXPECT_EQ(output.str(), "export type MyObject_Line1X0ALine2 = string;\n\n"
+                          "export interface MyObject {\n"
+                          "  \"line1\\nline2\"?: MyObject_Line1X0ALine2;\n"
+                          "}\n");
+}
+
+TEST(Generator_typescript, object_property_with_tab) {
+  using namespace sourcemeta::codegen;
+
+  IRResult result;
+
+  result.emplace_back(IRScalar{{{},
+                                sourcemeta::core::PointerTemplate{
+                                    sourcemeta::core::Pointer{"col1\tcol2"}}},
+                               IRScalarType::String});
+
+  IRObject object;
+  object.instance_location = {};
+  object.members.emplace(
+      "col1\tcol2",
+      IRObjectValue{{{},
+                     sourcemeta::core::PointerTemplate{
+                         sourcemeta::core::Pointer{"col1\tcol2"}}},
+                    false,
+                    false});
+  result.emplace_back(std::move(object));
+
+  std::ostringstream output;
+  generate<TypeScript>(output, result, "MyObject");
+
+  EXPECT_EQ(output.str(), "export type MyObject_Col1X09Col2 = string;\n\n"
+                          "export interface MyObject {\n"
+                          "  \"col1\\tcol2\"?: MyObject_Col1X09Col2;\n"
+                          "}\n");
+}
+
+TEST(Generator_typescript, object_property_with_carriage_return) {
+  using namespace sourcemeta::codegen;
+
+  IRResult result;
+
+  result.emplace_back(IRScalar{{{},
+                                sourcemeta::core::PointerTemplate{
+                                    sourcemeta::core::Pointer{"line1\rline2"}}},
+                               IRScalarType::String});
+
+  IRObject object;
+  object.instance_location = {};
+  object.members.emplace(
+      "line1\rline2",
+      IRObjectValue{{{},
+                     sourcemeta::core::PointerTemplate{
+                         sourcemeta::core::Pointer{"line1\rline2"}}},
+                    false,
+                    false});
+  result.emplace_back(std::move(object));
+
+  std::ostringstream output;
+  generate<TypeScript>(output, result, "MyObject");
+
+  EXPECT_EQ(output.str(), "export type MyObject_Line1X0DLine2 = string;\n\n"
+                          "export interface MyObject {\n"
+                          "  \"line1\\rline2\"?: MyObject_Line1X0DLine2;\n"
+                          "}\n");
+}
+
+TEST(Generator_typescript, object_property_with_special_characters) {
+  using namespace sourcemeta::codegen;
+
+  IRResult result;
+
+  result.emplace_back(IRScalar{{{},
+                                sourcemeta::core::PointerTemplate{
+                                    sourcemeta::core::Pointer{"$foo@bar"}}},
+                               IRScalarType::String});
+
+  IRObject object;
+  object.instance_location = {};
+  object.members.emplace(
+      "$foo@bar", IRObjectValue{{{},
+                                 sourcemeta::core::PointerTemplate{
+                                     sourcemeta::core::Pointer{"$foo@bar"}}},
+                                false,
+                                false});
+  result.emplace_back(std::move(object));
+
+  std::ostringstream output;
+  generate<TypeScript>(output, result, "MyObject");
+
+  const auto expected{R"TS(export type MyObject_X24FooX40Bar = string;
+
+export interface MyObject {
+  "$foo@bar"?: MyObject_X24FooX40Bar;
+}
+)TS"};
+
+  EXPECT_EQ(output.str(), expected);
+}
+
+TEST(Generator_typescript, object_property_with_spaces) {
+  using namespace sourcemeta::codegen;
+
+  IRResult result;
+
+  result.emplace_back(
+      IRScalar{{{},
+                sourcemeta::core::PointerTemplate{
+                    sourcemeta::core::Pointer{"my property name"}}},
+               IRScalarType::String});
+
+  IRObject object;
+  object.instance_location = {};
+  object.members.emplace(
+      "my property name",
+      IRObjectValue{{{},
+                     sourcemeta::core::PointerTemplate{
+                         sourcemeta::core::Pointer{"my property name"}}},
+                    false,
+                    false});
+  result.emplace_back(std::move(object));
+
+  std::ostringstream output;
+  generate<TypeScript>(output, result, "MyObject");
+
+  const auto expected{R"TS(export type MyObject_MyX20PropertyX20Name = string;
+
+export interface MyObject {
+  "my property name"?: MyObject_MyX20PropertyX20Name;
+}
+)TS"};
+
+  EXPECT_EQ(output.str(), expected);
+}
+
+TEST(Generator_typescript, object_property_starting_with_number) {
+  using namespace sourcemeta::codegen;
+
+  IRResult result;
+
+  result.emplace_back(IRScalar{
+      {{},
+       sourcemeta::core::PointerTemplate{sourcemeta::core::Pointer{"123abc"}}},
+      IRScalarType::String});
+
+  IRObject object;
+  object.instance_location = {};
+  object.members.emplace(
+      "123abc", IRObjectValue{{{},
+                               sourcemeta::core::PointerTemplate{
+                                   sourcemeta::core::Pointer{"123abc"}}},
+                              false,
+                              false});
+  result.emplace_back(std::move(object));
+
+  std::ostringstream output;
+  generate<TypeScript>(output, result, "MyObject");
+
+  const auto expected{R"TS(export type MyObject_123abc = string;
+
+export interface MyObject {
+  "123abc"?: MyObject_123abc;
+}
+)TS"};
+
+  EXPECT_EQ(output.str(), expected);
+}
+
+TEST(Generator_typescript, object_property_reserved_word) {
+  using namespace sourcemeta::codegen;
+
+  IRResult result;
+
+  result.emplace_back(IRScalar{
+      {{},
+       sourcemeta::core::PointerTemplate{sourcemeta::core::Pointer{"class"}}},
+      IRScalarType::String});
+
+  IRObject object;
+  object.instance_location = {};
+  object.members.emplace(
+      "class", IRObjectValue{{{},
+                              sourcemeta::core::PointerTemplate{
+                                  sourcemeta::core::Pointer{"class"}}},
+                             false,
+                             false});
+  result.emplace_back(std::move(object));
+
+  std::ostringstream output;
+  generate<TypeScript>(output, result, "MyObject");
+
+  const auto expected{R"TS(export type MyObject_Class = string;
+
+export interface MyObject {
+  "class"?: MyObject_Class;
+}
+)TS"};
+
+  EXPECT_EQ(output.str(), expected);
+}
+
+TEST(Generator_typescript, object_property_mixed_escapes) {
+  using namespace sourcemeta::codegen;
+
+  IRResult result;
+
+  result.emplace_back(
+      IRScalar{{{},
+                sourcemeta::core::PointerTemplate{
+                    sourcemeta::core::Pointer{"path\\to\\\"file\"\n"}}},
+               IRScalarType::String});
+
+  IRObject object;
+  object.instance_location = {};
+  object.members.emplace(
+      "path\\to\\\"file\"\n",
+      IRObjectValue{{{},
+                     sourcemeta::core::PointerTemplate{
+                         sourcemeta::core::Pointer{"path\\to\\\"file\"\n"}}},
+                    false,
+                    false});
+  result.emplace_back(std::move(object));
+
+  std::ostringstream output;
+  generate<TypeScript>(output, result, "MyObject");
+
+  EXPECT_EQ(output.str(),
+            "export type MyObject_PathX5CToX5CX22FileX22X0A = string;\n\n"
+            "export interface MyObject {\n"
+            "  \"path\\\\to\\\\\\\"file\\\"\\n\"?: "
+            "MyObject_PathX5CToX5CX22FileX22X0A;\n"
+            "}\n");
+}
+
+TEST(Generator_typescript, object_property_empty_string) {
+  using namespace sourcemeta::codegen;
+
+  IRResult result;
+
+  result.emplace_back(IRScalar{
+      {{}, sourcemeta::core::PointerTemplate{sourcemeta::core::Pointer{""}}},
+      IRScalarType::String});
+
+  IRObject object;
+  object.instance_location = {};
+  object.members.emplace("", IRObjectValue{{{},
+                                            sourcemeta::core::PointerTemplate{
+                                                sourcemeta::core::Pointer{""}}},
+                                           false,
+                                           false});
+  result.emplace_back(std::move(object));
+
+  std::ostringstream output;
+  generate<TypeScript>(output, result, "MyObject");
+
+  const auto expected{R"TS(export type MyObject_ZEmpty = string;
+
+export interface MyObject {
+  ""?: MyObject_ZEmpty;
 }
 )TS"};
 
@@ -190,7 +548,7 @@ TEST(Generator_typescript, array_nested_in_object) {
 export type MyObject_Tags = MyObject_Tags_0[];
 
 export interface MyObject {
-  tags?: MyObject_Tags;
+  "tags"?: MyObject_Tags;
 }
 )TS"};
 
@@ -303,7 +661,7 @@ TEST(Generator_typescript, reference_property_to_root) {
   const auto expected{R"TS(export type Node_Child = Node;
 
 export interface Node {
-  child?: Node_Child;
+  "child"?: Node_Child;
 }
 )TS"};
 
@@ -484,7 +842,7 @@ export type MyObject_Value_1 = string;
 export type MyObject_Value = MyObject_Value_0 | MyObject_Value_1;
 
 export interface MyObject {
-  value?: MyObject_Value;
+  "value"?: MyObject_Value;
 }
 )TS"};
 

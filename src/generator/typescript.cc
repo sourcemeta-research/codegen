@@ -1,5 +1,40 @@
 #include <sourcemeta/codegen/generator.h>
 
+#include <sstream> // std::ostringstream
+
+namespace {
+
+// TODO: Move to Core
+auto escape_string(const std::string &input) -> std::string {
+  std::ostringstream result;
+  for (const auto character : input) {
+    switch (character) {
+      case '\\':
+        result << "\\\\";
+        break;
+      case '"':
+        result << "\\\"";
+        break;
+      case '\n':
+        result << "\\n";
+        break;
+      case '\r':
+        result << "\\r";
+        break;
+      case '\t':
+        result << "\\t";
+        break;
+      default:
+        result << character;
+        break;
+    }
+  }
+
+  return result.str();
+}
+
+} // namespace
+
 namespace sourcemeta::codegen {
 
 TypeScript::TypeScript(std::ostream &stream, const std::string &type_prefix)
@@ -51,8 +86,14 @@ auto TypeScript::operator()(const IRObject &entry) const -> void {
   for (const auto &[member_name, member_value] : entry.members) {
     const auto optional_marker{member_value.required ? "" : "?"};
     const auto readonly_marker{member_value.immutable ? "readonly " : ""};
-    // TODO: Throw an error if this member name cannot be represented
-    this->output << "  " << readonly_marker << member_name << optional_marker
+    // We always quote property names for safety. JSON Schema allows any string
+    // as a property name, but unquoted TypeScript/ECMAScript property names
+    // must be valid IdentifierName productions (see ECMA-262 section 12.7).
+    // Quoting allows any string to be used as a property name.
+    // See: https://tc39.es/ecma262/#sec-names-and-keywords
+    // See: https://mathiasbynens.be/notes/javascript-properties
+    this->output << "  " << readonly_marker << "\""
+                 << escape_string(member_name) << "\"" << optional_marker
                  << ": "
                  << to_pascal_case(member_value.instance_location, this->prefix)
                  << ";\n";
