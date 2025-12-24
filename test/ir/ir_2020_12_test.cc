@@ -413,11 +413,7 @@ TEST(IR_2020_12, object_with_impossible_property) {
 
   EXPECT_EQ(result.size(), 2);
 
-  EXPECT_TRUE(std::holds_alternative<IRImpossible>(result.at(0)));
-  EXPECT_AS_STRING(std::get<IRImpossible>(result.at(0)).pointer,
-                   "/properties/foo");
-  EXPECT_AS_STRING(std::get<IRImpossible>(result.at(0)).instance_location,
-                   "/foo");
+  EXPECT_IR_IMPOSSIBLE(result, 0, "/properties/foo", "/foo");
 
   EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(1)));
   EXPECT_AS_STRING(std::get<IRObject>(result.at(1)).pointer, "");
@@ -455,11 +451,8 @@ TEST(IR_2020_12, object_with_impossible_additional_properties) {
 
   EXPECT_IR_SCALAR(result, 0, String, "/properties/foo", "/foo");
 
-  EXPECT_TRUE(std::holds_alternative<IRImpossible>(result.at(1)));
-  EXPECT_AS_STRING(std::get<IRImpossible>(result.at(1)).pointer,
-                   "/additionalProperties");
-  EXPECT_AS_STRING(std::get<IRImpossible>(result.at(1)).instance_location,
-                   "/~?additionalProperties~/~P~");
+  EXPECT_IR_IMPOSSIBLE(result, 1, "/additionalProperties",
+                       "/~?additionalProperties~/~P~");
 
   EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(2)));
   EXPECT_AS_STRING(std::get<IRObject>(result.at(2)).pointer, "");

@@ -18,4 +18,17 @@
   EXPECT_EQ(std::get<sourcemeta::codegen::IRScalar>(result.at(index)).value,   \
             sourcemeta::codegen::IRScalarType::scalar_type)
 
+#define EXPECT_IR_IMPOSSIBLE(result, index, expected_pointer,                  \
+                             expected_instance_location)                       \
+  EXPECT_TRUE(std::holds_alternative<sourcemeta::codegen::IRImpossible>(       \
+      result.at(index)))                                                       \
+      << "Expected IRImpossible at index " << index;                           \
+  EXPECT_AS_STRING(                                                            \
+      std::get<sourcemeta::codegen::IRImpossible>(result.at(index)).pointer,   \
+      expected_pointer);                                                       \
+  EXPECT_AS_STRING(                                                            \
+      std::get<sourcemeta::codegen::IRImpossible>(result.at(index))            \
+          .instance_location,                                                  \
+      expected_instance_location)
+
 #endif
