@@ -2,6 +2,7 @@
 #include <sourcemeta/core/alterschema.h>
 
 #include <algorithm>     // std::ranges::sort
+#include <cassert>       // assert
 #include <unordered_set> // std::unordered_set
 
 #include "ir_default_compiler.h"
@@ -12,7 +13,6 @@ auto compile(
     const sourcemeta::core::JSON &input,
     const sourcemeta::core::SchemaWalker &walker,
     const sourcemeta::core::SchemaResolver &resolver, const Compiler &compiler,
-    const sourcemeta::core::SchemaTransformer::Callback &callback,
     const std::optional<sourcemeta::core::JSON::String> &default_dialect,
     const std::optional<sourcemeta::core::JSON::String> &default_id)
     -> IRResult {
@@ -31,10 +31,11 @@ auto compile(
   sourcemeta::core::add(canonicalizer,
                         sourcemeta::core::AlterSchemaMode::Canonicalizer);
   const auto canonicalized{
-      canonicalizer.apply(schema, walker, resolver, callback)};
-  if (!canonicalized.first) {
-    throw NonCanonicalizableError{};
-  }
+      canonicalizer.apply(schema, walker, resolver,
+                          [](const auto &, const auto, const auto,
+                             const auto &) { assert(false); })};
+  // Canonicalisation only consists of transformable rules
+  assert(canonicalized.first);
 
   // --------------------------------------------------------------------------
   // (3) Frame the resulting schema with instance location information

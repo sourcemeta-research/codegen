@@ -29,11 +29,10 @@ public:
     const std::string expected{std::istreambuf_iterator<char>(expected_stream),
                                std::istreambuf_iterator<char>()};
 
-    const auto result{sourcemeta::codegen::compile(
-        schema, sourcemeta::core::schema_walker,
-        sourcemeta::core::schema_resolver,
-        sourcemeta::codegen::default_compiler,
-        [](const auto &, const auto, const auto, const auto &) {})};
+    const auto result{
+        sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                     sourcemeta::core::schema_resolver,
+                                     sourcemeta::codegen::default_compiler)};
 
     std::ostringstream output;
     if (options.defines("defaultPrefix")) {

@@ -10,10 +10,10 @@ TEST(IR_2020_12, test_1) {
     "type": "string"
   })JSON")};
 
-  const auto result{sourcemeta::codegen::compile(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver, sourcemeta::codegen::default_compiler,
-      [](const auto &, const auto, const auto, const auto &) {})};
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
 
   using namespace sourcemeta::codegen;
 
@@ -33,10 +33,10 @@ TEST(IR_2020_12, test_2) {
     }
   })JSON")};
 
-  const auto result{sourcemeta::codegen::compile(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver, sourcemeta::codegen::default_compiler,
-      [](const auto &, const auto, const auto, const auto &) {})};
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
 
   using namespace sourcemeta::codegen;
 
@@ -65,10 +65,10 @@ TEST(IR_2020_12, test_3) {
     "type": "integer"
   })JSON")};
 
-  const auto result{sourcemeta::codegen::compile(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver, sourcemeta::codegen::default_compiler,
-      [](const auto &, const auto, const auto, const auto &) {})};
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
 
   using namespace sourcemeta::codegen;
 
@@ -83,10 +83,10 @@ TEST(IR_2020_12, test_4) {
     "type": "number"
   })JSON")};
 
-  const auto result{sourcemeta::codegen::compile(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver, sourcemeta::codegen::default_compiler,
-      [](const auto &, const auto, const auto, const auto &) {})};
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
 
   using namespace sourcemeta::codegen;
 
@@ -104,10 +104,10 @@ TEST(IR_2020_12, test_5) {
     "multipleOf": 5
   })JSON")};
 
-  const auto result{sourcemeta::codegen::compile(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver, sourcemeta::codegen::default_compiler,
-      [](const auto &, const auto, const auto, const auto &) {})};
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
 
   using namespace sourcemeta::codegen;
 
@@ -125,10 +125,10 @@ TEST(IR_2020_12, test_6) {
     "multipleOf": 0.1
   })JSON")};
 
-  const auto result{sourcemeta::codegen::compile(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver, sourcemeta::codegen::default_compiler,
-      [](const auto &, const auto, const auto, const auto &) {})};
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
 
   using namespace sourcemeta::codegen;
 
@@ -143,10 +143,10 @@ TEST(IR_2020_12, enum_null) {
     "enum": [ null ]
   })JSON")};
 
-  const auto result{sourcemeta::codegen::compile(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver, sourcemeta::codegen::default_compiler,
-      [](const auto &, const auto, const auto, const auto &) {})};
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
 
   using namespace sourcemeta::codegen;
 
@@ -161,10 +161,10 @@ TEST(IR_2020_12, enum_boolean_true_false) {
     "enum": [ true, false ]
   })JSON")};
 
-  const auto result{sourcemeta::codegen::compile(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver, sourcemeta::codegen::default_compiler,
-      [](const auto &, const auto, const auto, const auto &) {})};
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
 
   using namespace sourcemeta::codegen;
 
@@ -179,10 +179,10 @@ TEST(IR_2020_12, enum_boolean_false_true) {
     "enum": [ false, true ]
   })JSON")};
 
-  const auto result{sourcemeta::codegen::compile(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver, sourcemeta::codegen::default_compiler,
-      [](const auto &, const auto, const auto, const auto &) {})};
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
 
   using namespace sourcemeta::codegen;
 
@@ -197,10 +197,10 @@ TEST(IR_2020_12, enum_string_values) {
     "enum": [ "foo", "bar", "baz" ]
   })JSON")};
 
-  const auto result{sourcemeta::codegen::compile(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver, sourcemeta::codegen::default_compiler,
-      [](const auto &, const auto, const auto, const auto &) {})};
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
 
   using namespace sourcemeta::codegen;
 
@@ -224,10 +224,10 @@ TEST(IR_2020_12, const_null) {
     "const": null
   })JSON")};
 
-  const auto result{sourcemeta::codegen::compile(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver, sourcemeta::codegen::default_compiler,
-      [](const auto &, const auto, const auto, const auto &) {})};
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
 
   using namespace sourcemeta::codegen;
 
@@ -242,10 +242,10 @@ TEST(IR_2020_12, const_string) {
     "const": "hello"
   })JSON")};
 
-  const auto result{sourcemeta::codegen::compile(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver, sourcemeta::codegen::default_compiler,
-      [](const auto &, const auto, const auto, const auto &) {})};
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
 
   using namespace sourcemeta::codegen;
 
@@ -265,10 +265,10 @@ TEST(IR_2020_12, const_integer) {
     "const": 42
   })JSON")};
 
-  const auto result{sourcemeta::codegen::compile(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver, sourcemeta::codegen::default_compiler,
-      [](const auto &, const auto, const auto, const auto &) {})};
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
 
   using namespace sourcemeta::codegen;
 
@@ -288,10 +288,10 @@ TEST(IR_2020_12, const_boolean_true) {
     "const": true
   })JSON")};
 
-  const auto result{sourcemeta::codegen::compile(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver, sourcemeta::codegen::default_compiler,
-      [](const auto &, const auto, const auto, const auto &) {})};
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
 
   using namespace sourcemeta::codegen;
 
@@ -310,10 +310,10 @@ TEST(IR_2020_12, object_type_only) {
     "type": "object"
   })JSON")};
 
-  const auto result{sourcemeta::codegen::compile(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver, sourcemeta::codegen::default_compiler,
-      [](const auto &, const auto, const auto, const auto &) {})};
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
 
   using namespace sourcemeta::codegen;
 
@@ -333,10 +333,10 @@ TEST(IR_2020_12, object_empty_properties) {
     "properties": {}
   })JSON")};
 
-  const auto result{sourcemeta::codegen::compile(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver, sourcemeta::codegen::default_compiler,
-      [](const auto &, const auto, const auto, const auto &) {})};
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
 
   using namespace sourcemeta::codegen;
 
@@ -359,10 +359,10 @@ TEST(IR_2020_12, object_with_additional_properties) {
     "additionalProperties": { "type": "integer" }
   })JSON")};
 
-  const auto result{sourcemeta::codegen::compile(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver, sourcemeta::codegen::default_compiler,
-      [](const auto &, const auto, const auto, const auto &) {})};
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
 
   using namespace sourcemeta::codegen;
 
@@ -404,10 +404,10 @@ TEST(IR_2020_12, object_with_impossible_property) {
     }
   })JSON")};
 
-  const auto result{sourcemeta::codegen::compile(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver, sourcemeta::codegen::default_compiler,
-      [](const auto &, const auto, const auto, const auto &) {})};
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
 
   using namespace sourcemeta::codegen;
 
@@ -440,10 +440,10 @@ TEST(IR_2020_12, object_with_impossible_additional_properties) {
     "additionalProperties": false
   })JSON")};
 
-  const auto result{sourcemeta::codegen::compile(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver, sourcemeta::codegen::default_compiler,
-      [](const auto &, const auto, const auto, const auto &) {})};
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
 
   using namespace sourcemeta::codegen;
 
@@ -484,10 +484,10 @@ TEST(IR_2020_12, array_with_items) {
     "items": { "type": "string" }
   })JSON")};
 
-  const auto result{sourcemeta::codegen::compile(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver, sourcemeta::codegen::default_compiler,
-      [](const auto &, const auto, const auto, const auto &) {})};
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
 
   using namespace sourcemeta::codegen;
 
@@ -510,10 +510,10 @@ TEST(IR_2020_12, array_nested_in_object) {
     }
   })JSON")};
 
-  const auto result{sourcemeta::codegen::compile(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver, sourcemeta::codegen::default_compiler,
-      [](const auto &, const auto, const auto, const auto &) {})};
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
 
   using namespace sourcemeta::codegen;
 
@@ -540,10 +540,10 @@ TEST(IR_2020_12, tuple_with_prefix_items) {
     ]
   })JSON")};
 
-  const auto result{sourcemeta::codegen::compile(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver, sourcemeta::codegen::default_compiler,
-      [](const auto &, const auto, const auto, const auto &) {})};
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
 
   using namespace sourcemeta::codegen;
 
@@ -579,10 +579,10 @@ TEST(IR_2020_12, tuple_with_prefix_items_and_items) {
     "items": { "type": "boolean" }
   })JSON")};
 
-  const auto result{sourcemeta::codegen::compile(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver, sourcemeta::codegen::default_compiler,
-      [](const auto &, const auto, const auto, const auto &) {})};
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
 
   using namespace sourcemeta::codegen;
 
@@ -617,10 +617,10 @@ TEST(IR_2020_12, anyof_two_branches) {
     ]
   })JSON")};
 
-  const auto result{sourcemeta::codegen::compile(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver, sourcemeta::codegen::default_compiler,
-      [](const auto &, const auto, const auto, const auto &) {})};
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
 
   using namespace sourcemeta::codegen;
 
@@ -655,10 +655,10 @@ TEST(IR_2020_12, anyof_three_branches) {
     ]
   })JSON")};
 
-  const auto result{sourcemeta::codegen::compile(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver, sourcemeta::codegen::default_compiler,
-      [](const auto &, const auto, const auto, const auto &) {})};
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
 
   using namespace sourcemeta::codegen;
 
@@ -698,10 +698,10 @@ TEST(IR_2020_12, ref_recursive_to_root) {
     }
   })JSON")};
 
-  const auto result{sourcemeta::codegen::compile(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver, sourcemeta::codegen::default_compiler,
-      [](const auto &, const auto, const auto, const auto &) {})};
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
 
   using namespace sourcemeta::codegen;
 
@@ -722,81 +722,4 @@ TEST(IR_2020_12, ref_recursive_to_root) {
       std::get<IRObject>(result.at(1)).members.at("child").instance_location,
       "/child");
   EXPECT_FALSE(std::get<IRObject>(result.at(1)).additional.has_value());
-}
-
-TEST(IR_2020_12, invalid_property_name) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "type": "object",
-    "properties": {
-      "$!@": { "type": "string" }
-    }
-  })JSON")};
-
-  struct CallbackEntry {
-    sourcemeta::core::Pointer pointer;
-    std::string rule_name;
-    std::string message;
-    bool applies;
-    std::vector<sourcemeta::core::Pointer> locations;
-    std::optional<std::string> description;
-  };
-
-  std::vector<CallbackEntry> callback_entries;
-
-  EXPECT_THROW(
-      {
-        sourcemeta::codegen::compile(
-            schema, sourcemeta::core::schema_walker,
-            sourcemeta::core::schema_resolver,
-            sourcemeta::codegen::default_compiler,
-            [&callback_entries](const sourcemeta::core::Pointer &pointer,
-                                const std::string_view rule_name,
-                                const std::string_view message,
-                                const auto &result) {
-              CallbackEntry entry;
-              entry.pointer = pointer;
-              entry.rule_name = std::string{rule_name};
-              entry.message = std::string{message};
-              entry.applies = result.applies;
-              entry.locations = result.locations;
-              entry.description = result.description;
-              callback_entries.push_back(std::move(entry));
-            });
-      },
-      sourcemeta::codegen::NonCanonicalizableError);
-
-  EXPECT_EQ(callback_entries.size(), 3);
-
-  // TODO: Why is this emitted 3 times?
-
-  EXPECT_AS_STRING(callback_entries.at(0).pointer, "");
-  EXPECT_EQ(callback_entries.at(0).rule_name, "simple_properties_identifiers");
-  EXPECT_EQ(callback_entries.at(0).message,
-            "Set `properties` to identifier names that can be easily mapped to "
-            "programming languages (matching [A-Za-z_][A-Za-z0-9_]*)");
-  EXPECT_TRUE(callback_entries.at(0).applies);
-  EXPECT_EQ(callback_entries.at(0).locations.size(), 1);
-  EXPECT_AS_STRING(callback_entries.at(0).locations.at(0), "/properties/$!@");
-  EXPECT_FALSE(callback_entries.at(0).description.has_value());
-
-  EXPECT_AS_STRING(callback_entries.at(1).pointer, "");
-  EXPECT_EQ(callback_entries.at(1).rule_name, "simple_properties_identifiers");
-  EXPECT_EQ(callback_entries.at(1).message,
-            "Set `properties` to identifier names that can be easily mapped to "
-            "programming languages (matching [A-Za-z_][A-Za-z0-9_]*)");
-  EXPECT_TRUE(callback_entries.at(1).applies);
-  EXPECT_EQ(callback_entries.at(1).locations.size(), 1);
-  EXPECT_AS_STRING(callback_entries.at(1).locations.at(0), "/properties/$!@");
-  EXPECT_FALSE(callback_entries.at(1).description.has_value());
-
-  EXPECT_AS_STRING(callback_entries.at(2).pointer, "");
-  EXPECT_EQ(callback_entries.at(2).rule_name, "simple_properties_identifiers");
-  EXPECT_EQ(callback_entries.at(2).message,
-            "Set `properties` to identifier names that can be easily mapped to "
-            "programming languages (matching [A-Za-z_][A-Za-z0-9_]*)");
-  EXPECT_TRUE(callback_entries.at(2).applies);
-  EXPECT_EQ(callback_entries.at(2).locations.size(), 1);
-  EXPECT_AS_STRING(callback_entries.at(2).locations.at(0), "/properties/$!@");
-  EXPECT_FALSE(callback_entries.at(2).description.has_value());
 }
