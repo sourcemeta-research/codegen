@@ -688,3 +688,38 @@ TEST(IR_2020_12, anyof_three_branches) {
       std::get<IRUnion>(result.at(3)).values.at(2).instance_location,
       "/~?anyOf~/~?2~");
 }
+
+TEST(IR_2020_12, ref_recursive_to_root) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "child": { "$ref": "#" }
+    }
+  })JSON")};
+
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
+
+  using namespace sourcemeta::codegen;
+
+  EXPECT_EQ(result.size(), 2);
+
+  EXPECT_IR_REFERENCE(result, 0, "/properties/child", "/child", "", "");
+
+  EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(1)));
+  EXPECT_AS_STRING(std::get<IRObject>(result.at(1)).pointer, "");
+  EXPECT_AS_STRING(std::get<IRObject>(result.at(1)).instance_location, "");
+  EXPECT_EQ(std::get<IRObject>(result.at(1)).members.size(), 1);
+  EXPECT_TRUE(std::get<IRObject>(result.at(1)).members.contains("child"));
+  EXPECT_FALSE(std::get<IRObject>(result.at(1)).members.at("child").required);
+  EXPECT_FALSE(std::get<IRObject>(result.at(1)).members.at("child").immutable);
+  EXPECT_AS_STRING(std::get<IRObject>(result.at(1)).members.at("child").pointer,
+                   "/properties/child");
+  EXPECT_AS_STRING(
+      std::get<IRObject>(result.at(1)).members.at("child").instance_location,
+      "/child");
+  EXPECT_FALSE(std::get<IRObject>(result.at(1)).additional.has_value());
+}

@@ -52,4 +52,26 @@
                        .items.instance_location,                               \
                    expected_items_instance_location)
 
+#define EXPECT_IR_REFERENCE(                                                   \
+    result, index, expected_pointer, expected_instance_location,               \
+    expected_target_pointer, expected_target_instance_location)                \
+  EXPECT_TRUE(std::holds_alternative<sourcemeta::codegen::IRReference>(        \
+      result.at(index)))                                                       \
+      << "Expected IRReference at index " << index;                            \
+  EXPECT_AS_STRING(                                                            \
+      std::get<sourcemeta::codegen::IRReference>(result.at(index)).pointer,    \
+      expected_pointer);                                                       \
+  EXPECT_AS_STRING(                                                            \
+      std::get<sourcemeta::codegen::IRReference>(result.at(index))             \
+          .instance_location,                                                  \
+      expected_instance_location);                                             \
+  EXPECT_AS_STRING(                                                            \
+      std::get<sourcemeta::codegen::IRReference>(result.at(index))             \
+          .target.pointer,                                                     \
+      expected_target_pointer);                                                \
+  EXPECT_AS_STRING(                                                            \
+      std::get<sourcemeta::codegen::IRReference>(result.at(index))             \
+          .target.instance_location,                                           \
+      expected_target_instance_location)
+
 #endif

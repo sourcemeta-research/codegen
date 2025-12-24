@@ -82,8 +82,13 @@ struct IRTuple : IRType {
 struct IRImpossible : IRType {};
 
 /// @ingroup ir
+struct IRReference : IRType {
+  IRType target;
+};
+
+/// @ingroup ir
 using IREntity = std::variant<IRObject, IRScalar, IREnumeration, IRUnion,
-                              IRArray, IRTuple, IRImpossible>;
+                              IRArray, IRTuple, IRImpossible, IRReference>;
 
 /// @ingroup ir
 using IRResult = std::vector<IREntity>;
