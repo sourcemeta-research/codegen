@@ -495,12 +495,7 @@ TEST(IR_2020_12, array_with_items) {
 
   EXPECT_IR_SCALAR(result, 0, String, "/items", "/~?items~/~I~");
 
-  EXPECT_TRUE(std::holds_alternative<IRArray>(result.at(1)));
-  EXPECT_AS_STRING(std::get<IRArray>(result.at(1)).pointer, "");
-  EXPECT_AS_STRING(std::get<IRArray>(result.at(1)).instance_location, "");
-  EXPECT_AS_STRING(std::get<IRArray>(result.at(1)).items.pointer, "/items");
-  EXPECT_AS_STRING(std::get<IRArray>(result.at(1)).items.instance_location,
-                   "/~?items~/~I~");
+  EXPECT_IR_ARRAY(result, 1, "", "", "/items", "/~?items~/~I~");
 }
 
 TEST(IR_2020_12, array_nested_in_object) {
@@ -527,13 +522,8 @@ TEST(IR_2020_12, array_nested_in_object) {
   EXPECT_IR_SCALAR(result, 0, String, "/properties/tags/items",
                    "/tags/~?items~/~I~");
 
-  EXPECT_TRUE(std::holds_alternative<IRArray>(result.at(1)));
-  EXPECT_AS_STRING(std::get<IRArray>(result.at(1)).pointer, "/properties/tags");
-  EXPECT_AS_STRING(std::get<IRArray>(result.at(1)).instance_location, "/tags");
-  EXPECT_AS_STRING(std::get<IRArray>(result.at(1)).items.pointer,
-                   "/properties/tags/items");
-  EXPECT_AS_STRING(std::get<IRArray>(result.at(1)).items.instance_location,
-                   "/tags/~?items~/~I~");
+  EXPECT_IR_ARRAY(result, 1, "/properties/tags", "/tags",
+                  "/properties/tags/items", "/tags/~?items~/~I~");
 
   EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(2)));
   EXPECT_AS_STRING(std::get<IRObject>(result.at(2)).pointer, "");

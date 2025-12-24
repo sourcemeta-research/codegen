@@ -31,4 +31,23 @@
           .instance_location,                                                  \
       expected_instance_location)
 
+#define EXPECT_IR_ARRAY(result, index, expected_pointer,                       \
+                        expected_instance_location, expected_items_pointer,    \
+                        expected_items_instance_location)                      \
+  EXPECT_TRUE(                                                                 \
+      std::holds_alternative<sourcemeta::codegen::IRArray>(result.at(index)))  \
+      << "Expected IRArray at index " << index;                                \
+  EXPECT_AS_STRING(                                                            \
+      std::get<sourcemeta::codegen::IRArray>(result.at(index)).pointer,        \
+      expected_pointer);                                                       \
+  EXPECT_AS_STRING(std::get<sourcemeta::codegen::IRArray>(result.at(index))    \
+                       .instance_location,                                     \
+                   expected_instance_location);                                \
+  EXPECT_AS_STRING(                                                            \
+      std::get<sourcemeta::codegen::IRArray>(result.at(index)).items.pointer,  \
+      expected_items_pointer);                                                 \
+  EXPECT_AS_STRING(std::get<sourcemeta::codegen::IRArray>(result.at(index))    \
+                       .items.instance_location,                               \
+                   expected_items_instance_location)
+
 #endif
