@@ -997,3 +997,29 @@ type Test = {
 
   EXPECT_EQ(output.str(), expected);
 }
+
+TEST(Generator_typescript, object_only_additional_properties) {
+  using namespace sourcemeta::codegen;
+
+  IRResult result;
+
+  result.emplace_back(
+      IRScalar{{sourcemeta::core::Pointer{"additionalProperties"}},
+               IRScalarType::Boolean});
+
+  IRObject object;
+  object.pointer = {};
+  object.additional = IRObjectValue{
+      {sourcemeta::core::Pointer{"additionalProperties"}}, false, false};
+  result.emplace_back(std::move(object));
+
+  std::ostringstream output;
+  generate<TypeScript>(output, result, "Test");
+
+  const auto expected{R"TS(export type Test_AdditionalProperties = boolean;
+
+export type Test = Record<string, Test_AdditionalProperties>;
+)TS"};
+
+  EXPECT_EQ(output.str(), expected);
+}

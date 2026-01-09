@@ -792,3 +792,29 @@ TEST(IR_2020_12, object_with_additional_properties_true) {
   EXPECT_AS_STRING(std::get<IRObject>(result.at(8)).additional->pointer,
                    "/additionalProperties");
 }
+
+TEST(IR_2020_12, object_only_additional_properties) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": { "type": "boolean" }
+  })JSON")};
+
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
+
+  using namespace sourcemeta::codegen;
+
+  EXPECT_EQ(result.size(), 2);
+
+  EXPECT_IR_SCALAR(result, 0, Boolean, "/additionalProperties");
+
+  EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(1)));
+  EXPECT_AS_STRING(std::get<IRObject>(result.at(1)).pointer, "");
+  EXPECT_EQ(std::get<IRObject>(result.at(1)).members.size(), 0);
+  EXPECT_TRUE(std::get<IRObject>(result.at(1)).additional.has_value());
+  EXPECT_AS_STRING(std::get<IRObject>(result.at(1)).additional->pointer,
+                   "/additionalProperties");
+}

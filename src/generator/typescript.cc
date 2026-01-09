@@ -83,6 +83,14 @@ auto TypeScript::operator()(const IRObject &entry) const -> void {
   const auto type_name{sourcemeta::core::mangle(entry.pointer, this->prefix)};
   const auto has_additional{entry.additional.has_value()};
 
+  if (has_additional && entry.members.empty()) {
+    this->output << "export type " << type_name << " = Record<string, "
+                 << sourcemeta::core::mangle(entry.additional->pointer,
+                                             this->prefix)
+                 << ">;\n";
+    return;
+  }
+
   if (has_additional) {
     this->output << "type " << type_name << " = {\n";
   } else {
