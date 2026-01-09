@@ -33,6 +33,9 @@ compile: .always
 	$(CMAKE) --install ./build --prefix ./build/dist --config $(PRESET) --verbose \
 		--component sourcemeta_codegen_dev
 
+doxygen: .always
+	$(CMAKE) --build ./build --config $(PRESET) --target doxygen
+
 test: .always
 	$(CMAKE) -E env UBSAN_OPTIONS=print_stacktrace=1 \
 		$(CTEST) --test-dir ./build --build-config $(PRESET) \
