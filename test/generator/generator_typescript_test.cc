@@ -457,7 +457,7 @@ TEST(Generator_typescript, array_at_root) {
 
   IRArray array;
   array.pointer = {};
-  array.items.pointer = sourcemeta::core::Pointer{"items"};
+  array.items = IRType{.pointer = sourcemeta::core::Pointer{"items"}};
   result.emplace_back(std::move(array));
 
   std::ostringstream output;
@@ -482,8 +482,8 @@ TEST(Generator_typescript, array_nested_in_object) {
 
   IRArray array;
   array.pointer = sourcemeta::core::Pointer{"properties", "tags"};
-  array.items.pointer =
-      sourcemeta::core::Pointer{"properties", "tags", "items"};
+  array.items = IRType{
+      .pointer = sourcemeta::core::Pointer{"properties", "tags", "items"}};
   result.emplace_back(std::move(array));
 
   IRObject object;
@@ -851,6 +851,25 @@ type Item = {
   EXPECT_EQ(output.str(), expected);
 }
 
+TEST(Generator_typescript, array_without_items) {
+  using namespace sourcemeta::codegen;
+
+  IRResult result;
+
+  IRArray array;
+  array.pointer = {};
+  array.items = std::nullopt;
+  result.emplace_back(std::move(array));
+
+  std::ostringstream output;
+  generate<TypeScript>(output, result, "MyArray");
+
+  const auto expected{R"TS(export type MyArray = unknown[];
+)TS"};
+
+  EXPECT_EQ(output.str(), expected);
+}
+
 TEST(Generator_typescript, object_with_additional_properties_false) {
   using namespace sourcemeta::codegen;
 
@@ -885,6 +904,94 @@ type MyObject = {
   [K in string as K extends
     "foo"
   ? never : K]: MyObject_AdditionalProperties;
+};
+)TS"};
+
+  EXPECT_EQ(output.str(), expected);
+}
+
+TEST(Generator_typescript, object_with_additional_properties_any) {
+  using namespace sourcemeta::codegen;
+
+  IRResult result;
+
+  result.emplace_back(IRScalar{
+      {sourcemeta::core::Pointer{"properties", "name"}}, IRScalarType::String});
+
+  result.emplace_back(IRScalar{
+      {sourcemeta::core::Pointer{"additionalProperties", "anyOf", "0"}},
+      IRScalarType::Null});
+
+  result.emplace_back(IRScalar{
+      {sourcemeta::core::Pointer{"additionalProperties", "anyOf", "1"}},
+      IRScalarType::Boolean});
+
+  IRArray any_array;
+  any_array.pointer =
+      sourcemeta::core::Pointer{"additionalProperties", "anyOf", "2"};
+  any_array.items = std::nullopt;
+  result.emplace_back(std::move(any_array));
+
+  result.emplace_back(IRScalar{
+      {sourcemeta::core::Pointer{"additionalProperties", "anyOf", "3"}},
+      IRScalarType::String});
+
+  result.emplace_back(IRScalar{
+      {sourcemeta::core::Pointer{"additionalProperties", "anyOf", "4"}},
+      IRScalarType::Number});
+
+  IRUnion any_union;
+  any_union.pointer = sourcemeta::core::Pointer{"additionalProperties"};
+  any_union.values.push_back(
+      {sourcemeta::core::Pointer{"additionalProperties", "anyOf", "0"}});
+  any_union.values.push_back(
+      {sourcemeta::core::Pointer{"additionalProperties", "anyOf", "1"}});
+  any_union.values.push_back(
+      {sourcemeta::core::Pointer{"additionalProperties", "anyOf", "2"}});
+  any_union.values.push_back(
+      {sourcemeta::core::Pointer{"additionalProperties", "anyOf", "3"}});
+  any_union.values.push_back(
+      {sourcemeta::core::Pointer{"additionalProperties", "anyOf", "4"}});
+  result.emplace_back(std::move(any_union));
+
+  IRObject object;
+  object.pointer = {};
+  object.members.emplace(
+      "name", IRObjectValue{{sourcemeta::core::Pointer{"properties", "name"}},
+                            false,
+                            false});
+  object.additional = IRObjectValue{
+      {sourcemeta::core::Pointer{"additionalProperties"}}, false, false};
+  result.emplace_back(std::move(object));
+
+  std::ostringstream output;
+  generate<TypeScript>(output, result, "Test");
+
+  const auto expected{R"TS(export type Test_Properties_Name = string;
+
+export type Test_AdditionalProperties_AnyOf_0 = null;
+
+export type Test_AdditionalProperties_AnyOf_1 = boolean;
+
+export type Test_AdditionalProperties_AnyOf_2 = unknown[];
+
+export type Test_AdditionalProperties_AnyOf_3 = string;
+
+export type Test_AdditionalProperties_AnyOf_4 = number;
+
+export type Test_AdditionalProperties =
+  Test_AdditionalProperties_AnyOf_0 |
+  Test_AdditionalProperties_AnyOf_1 |
+  Test_AdditionalProperties_AnyOf_2 |
+  Test_AdditionalProperties_AnyOf_3 |
+  Test_AdditionalProperties_AnyOf_4;
+
+type Test = {
+  "name"?: Test_Properties_Name
+} & {
+  [K in string as K extends
+    "name"
+  ? never : K]: Test_AdditionalProperties;
 };
 )TS"};
 

@@ -68,7 +68,7 @@ struct IRObject : IRType {
 
 /// @ingroup ir
 struct IRArray : IRType {
-  IRType items;
+  std::optional<IRType> items;
 };
 
 /// @ingroup ir

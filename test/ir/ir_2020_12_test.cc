@@ -704,3 +704,91 @@ TEST(IR_2020_12, nested_object_with_required_property) {
       "/properties/nested");
   EXPECT_FALSE(std::get<IRObject>(result.at(2)).additional.has_value());
 }
+
+TEST(IR_2020_12, array_without_items) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "array",
+    "minItems": 0
+  })JSON")};
+
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
+
+  using namespace sourcemeta::codegen;
+
+  EXPECT_EQ(result.size(), 1);
+
+  EXPECT_TRUE(std::holds_alternative<IRArray>(result.at(0)));
+  EXPECT_AS_STRING(std::get<IRArray>(result.at(0)).pointer, "");
+  EXPECT_FALSE(std::get<IRArray>(result.at(0)).items.has_value());
+}
+
+TEST(IR_2020_12, object_with_additional_properties_true) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "name": { "type": "string" }
+    },
+    "additionalProperties": true
+  })JSON")};
+
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
+
+  using namespace sourcemeta::codegen;
+
+  EXPECT_EQ(result.size(), 9);
+
+  EXPECT_IR_SCALAR(result, 0, String, "/properties/name");
+  EXPECT_IR_SCALAR(result, 1, Number, "/additionalProperties/anyOf/5");
+  EXPECT_IR_SCALAR(result, 2, String, "/additionalProperties/anyOf/4");
+
+  EXPECT_TRUE(std::holds_alternative<IRArray>(result.at(3)));
+  EXPECT_AS_STRING(std::get<IRArray>(result.at(3)).pointer,
+                   "/additionalProperties/anyOf/3");
+  EXPECT_FALSE(std::get<IRArray>(result.at(3)).items.has_value());
+
+  EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(4)));
+  EXPECT_AS_STRING(std::get<IRObject>(result.at(4)).pointer,
+                   "/additionalProperties/anyOf/2");
+  EXPECT_EQ(std::get<IRObject>(result.at(4)).members.size(), 0);
+  EXPECT_FALSE(std::get<IRObject>(result.at(4)).additional.has_value());
+
+  EXPECT_IR_SCALAR(result, 5, Boolean, "/additionalProperties/anyOf/1");
+  EXPECT_IR_SCALAR(result, 6, Null, "/additionalProperties/anyOf/0");
+
+  EXPECT_TRUE(std::holds_alternative<IRUnion>(result.at(7)));
+  EXPECT_AS_STRING(std::get<IRUnion>(result.at(7)).pointer,
+                   "/additionalProperties");
+  EXPECT_EQ(std::get<IRUnion>(result.at(7)).values.size(), 6);
+  EXPECT_AS_STRING(std::get<IRUnion>(result.at(7)).values.at(0).pointer,
+                   "/additionalProperties/anyOf/0");
+  EXPECT_AS_STRING(std::get<IRUnion>(result.at(7)).values.at(1).pointer,
+                   "/additionalProperties/anyOf/1");
+  EXPECT_AS_STRING(std::get<IRUnion>(result.at(7)).values.at(2).pointer,
+                   "/additionalProperties/anyOf/2");
+  EXPECT_AS_STRING(std::get<IRUnion>(result.at(7)).values.at(3).pointer,
+                   "/additionalProperties/anyOf/3");
+  EXPECT_AS_STRING(std::get<IRUnion>(result.at(7)).values.at(4).pointer,
+                   "/additionalProperties/anyOf/4");
+  EXPECT_AS_STRING(std::get<IRUnion>(result.at(7)).values.at(5).pointer,
+                   "/additionalProperties/anyOf/5");
+
+  EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(8)));
+  EXPECT_AS_STRING(std::get<IRObject>(result.at(8)).pointer, "");
+  EXPECT_EQ(std::get<IRObject>(result.at(8)).members.size(), 1);
+  EXPECT_TRUE(std::get<IRObject>(result.at(8)).members.contains("name"));
+  EXPECT_FALSE(std::get<IRObject>(result.at(8)).members.at("name").required);
+  EXPECT_FALSE(std::get<IRObject>(result.at(8)).members.at("name").immutable);
+  EXPECT_AS_STRING(std::get<IRObject>(result.at(8)).members.at("name").pointer,
+                   "/properties/name");
+  EXPECT_TRUE(std::get<IRObject>(result.at(8)).additional.has_value());
+  EXPECT_AS_STRING(std::get<IRObject>(result.at(8)).additional->pointer,
+                   "/additionalProperties");
+}

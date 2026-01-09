@@ -143,9 +143,17 @@ auto TypeScript::operator()(const IRImpossible &entry) const -> void {
 
 auto TypeScript::operator()(const IRArray &entry) const -> void {
   this->output << "export type "
-               << sourcemeta::core::mangle(entry.pointer, this->prefix) << " = "
-               << sourcemeta::core::mangle(entry.items.pointer, this->prefix)
-               << "[];\n";
+               << sourcemeta::core::mangle(entry.pointer, this->prefix)
+               << " = ";
+
+  if (entry.items.has_value()) {
+    this->output << sourcemeta::core::mangle(entry.items->pointer, this->prefix)
+                 << "[]";
+  } else {
+    this->output << "unknown[]";
+  }
+
+  this->output << ";\n";
 }
 
 auto TypeScript::operator()(const IRReference &entry) const -> void {

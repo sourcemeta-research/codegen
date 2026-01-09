@@ -208,12 +208,15 @@ auto handle_array(const sourcemeta::core::JSON &schema,
                    std::move(additional)};
   }
 
-  assert(subschema.defines("items"));
-  auto items_pointer{sourcemeta::core::to_pointer(location.pointer)};
-  items_pointer.push_back("items");
+  std::optional<IRType> items_type{std::nullopt};
+  if (subschema.defines("items")) {
+    auto items_pointer{sourcemeta::core::to_pointer(location.pointer)};
+    items_pointer.push_back("items");
+    items_type = IRType{.pointer = std::move(items_pointer)};
+  }
 
   return IRArray{{.pointer = sourcemeta::core::to_pointer(location.pointer)},
-                 {.pointer = std::move(items_pointer)}};
+                 std::move(items_type)};
 }
 
 auto handle_enum(const sourcemeta::core::JSON &schema,

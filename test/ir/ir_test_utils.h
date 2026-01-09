@@ -32,8 +32,11 @@
   EXPECT_AS_STRING(                                                            \
       std::get<sourcemeta::codegen::IRArray>(result.at(index)).pointer,        \
       expected_pointer);                                                       \
+  EXPECT_TRUE(std::get<sourcemeta::codegen::IRArray>(result.at(index))         \
+                  .items.has_value())                                          \
+      << "Expected IRArray items to have a value";                             \
   EXPECT_AS_STRING(                                                            \
-      std::get<sourcemeta::codegen::IRArray>(result.at(index)).items.pointer,  \
+      std::get<sourcemeta::codegen::IRArray>(result.at(index)).items->pointer, \
       expected_items_pointer)
 
 #define EXPECT_IR_REFERENCE(result, index, expected_pointer,                   \
