@@ -5,11 +5,11 @@ export type Person_Properties_Age = number;
 export type Person_AdditionalProperties = string;
 
 export type Person = {
-  "age"?: Person_Properties_Age;
-  "name": Person_Properties_Name
+  "name": Person_Properties_Name;
+  "age"?: Person_Properties_Age
 } & {
   [K in string as K extends
-    "age" |
-    "name"
+    "name" |
+    "age"
   ? never : K]: Person_AdditionalProperties;
 };

@@ -13,12 +13,12 @@
 #include <sourcemeta/core/jsonpointer.h>
 #include <sourcemeta/core/jsonschema.h>
 
-#include <cstdint>       // std::uint8_t
-#include <functional>    // std::function
-#include <optional>      // std::optional, std::nullopt
-#include <unordered_map> // std::unordered_map
-#include <variant>       // std::variant
-#include <vector>        // std::vector
+#include <cstdint>    // std::uint8_t
+#include <functional> // std::function
+#include <optional>   // std::optional, std::nullopt
+#include <utility>    // std::pair
+#include <variant>    // std::variant
+#include <vector>     // std::vector
 
 /// @defgroup ir IR
 /// @brief The codegen JSON Schema intermediary format
@@ -62,7 +62,8 @@ struct IRObjectValue : IRType {
 
 /// @ingroup ir
 struct IRObject : IRType {
-  std::unordered_map<sourcemeta::core::JSON::String, IRObjectValue> members;
+  // To preserve the user's ordering
+  std::vector<std::pair<sourcemeta::core::JSON::String, IRObjectValue>> members;
   std::optional<IRObjectValue> additional;
 };
 
@@ -111,8 +112,9 @@ SOURCEMETA_CODEGEN_IR_EXPORT
 auto compile(const sourcemeta::core::JSON &schema,
              const sourcemeta::core::SchemaWalker &walker,
              const sourcemeta::core::SchemaResolver &resolver,
-             const Compiler &compiler, std::string_view default_dialect = "",
-             std::string_view default_id = "") -> IRResult;
+             const Compiler &compiler,
+             const std::string_view default_dialect = "",
+             const std::string_view default_id = "") -> IRResult;
 
 } // namespace sourcemeta::codegen
 

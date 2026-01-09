@@ -74,7 +74,7 @@ TEST(Generator_typescript, object_with_optional_string_property) {
 
   IRObject object;
   object.pointer = {};
-  object.members.emplace(
+  object.members.emplace_back(
       "foo", IRObjectValue{{sourcemeta::core::Pointer{"properties", "foo"}},
                            false,
                            false});
@@ -104,7 +104,7 @@ TEST(Generator_typescript, object_property_with_quotes) {
 
   IRObject object;
   object.pointer = {};
-  object.members.emplace(
+  object.members.emplace_back(
       "say \"hello\"",
       IRObjectValue{{sourcemeta::core::Pointer{"properties", "say \"hello\""}},
                     false,
@@ -136,7 +136,7 @@ TEST(Generator_typescript, object_property_with_backslash) {
 
   IRObject object;
   object.pointer = {};
-  object.members.emplace(
+  object.members.emplace_back(
       "path\\to\\file",
       IRObjectValue{{sourcemeta::core::Pointer{"properties", "path\\to\\file"}},
                     false,
@@ -168,7 +168,7 @@ TEST(Generator_typescript, object_property_with_newline) {
 
   IRObject object;
   object.pointer = {};
-  object.members.emplace(
+  object.members.emplace_back(
       "line1\nline2",
       IRObjectValue{{sourcemeta::core::Pointer{"properties", "line1\nline2"}},
                     false,
@@ -196,7 +196,7 @@ TEST(Generator_typescript, object_property_with_tab) {
 
   IRObject object;
   object.pointer = {};
-  object.members.emplace(
+  object.members.emplace_back(
       "col1\tcol2",
       IRObjectValue{{sourcemeta::core::Pointer{"properties", "col1\tcol2"}},
                     false,
@@ -224,7 +224,7 @@ TEST(Generator_typescript, object_property_with_carriage_return) {
 
   IRObject object;
   object.pointer = {};
-  object.members.emplace(
+  object.members.emplace_back(
       "line1\rline2",
       IRObjectValue{{sourcemeta::core::Pointer{"properties", "line1\rline2"}},
                     false,
@@ -252,7 +252,7 @@ TEST(Generator_typescript, object_property_with_special_characters) {
 
   IRObject object;
   object.pointer = {};
-  object.members.emplace(
+  object.members.emplace_back(
       "$foo@bar",
       IRObjectValue{
           {sourcemeta::core::Pointer{"properties", "$foo@bar"}}, false, false});
@@ -283,11 +283,11 @@ TEST(Generator_typescript, object_property_with_spaces) {
 
   IRObject object;
   object.pointer = {};
-  object.members.emplace("my property name",
-                         IRObjectValue{{sourcemeta::core::Pointer{
-                                           "properties", "my property name"}},
-                                       false,
-                                       false});
+  object.members.emplace_back(
+      "my property name", IRObjectValue{{sourcemeta::core::Pointer{
+                                            "properties", "my property name"}},
+                                        false,
+                                        false});
   result.emplace_back(std::move(object));
 
   std::ostringstream output;
@@ -315,7 +315,7 @@ TEST(Generator_typescript, object_property_starting_with_number) {
 
   IRObject object;
   object.pointer = {};
-  object.members.emplace(
+  object.members.emplace_back(
       "123abc",
       IRObjectValue{
           {sourcemeta::core::Pointer{"properties", "123abc"}}, false, false});
@@ -345,7 +345,7 @@ TEST(Generator_typescript, object_property_reserved_word) {
 
   IRObject object;
   object.pointer = {};
-  object.members.emplace(
+  object.members.emplace_back(
       "class", IRObjectValue{{sourcemeta::core::Pointer{"properties", "class"}},
                              false,
                              false});
@@ -375,7 +375,7 @@ TEST(Generator_typescript, object_property_mixed_escapes) {
 
   IRObject object;
   object.pointer = {};
-  object.members.emplace(
+  object.members.emplace_back(
       "path\\to\\\"file\"\n",
       IRObjectValue{
           {sourcemeta::core::Pointer{"properties", "path\\to\\\"file\"\n"}},
@@ -405,7 +405,7 @@ TEST(Generator_typescript, object_property_empty_string) {
 
   IRObject object;
   object.pointer = {};
-  object.members.emplace(
+  object.members.emplace_back(
       "", IRObjectValue{
               {sourcemeta::core::Pointer{"properties", ""}}, false, false});
   result.emplace_back(std::move(object));
@@ -488,7 +488,7 @@ TEST(Generator_typescript, array_nested_in_object) {
 
   IRObject object;
   object.pointer = {};
-  object.members.emplace(
+  object.members.emplace_back(
       "tags", IRObjectValue{{sourcemeta::core::Pointer{"properties", "tags"}},
                             false,
                             false});
@@ -579,7 +579,7 @@ TEST(Generator_typescript, reference_property_to_root) {
 
   IRObject object;
   object.pointer = {};
-  object.members.emplace(
+  object.members.emplace_back(
       "child", IRObjectValue{{sourcemeta::core::Pointer{"properties", "child"}},
                              false,
                              false});
@@ -732,7 +732,7 @@ TEST(Generator_typescript, union_nested_in_object) {
 
   IRObject object;
   object.pointer = {};
-  object.members.emplace(
+  object.members.emplace_back(
       "value", IRObjectValue{{sourcemeta::core::Pointer{"properties", "value"}},
                              false,
                              false});
@@ -775,11 +775,11 @@ TEST(Generator_typescript, object_with_additional_properties_typed) {
 
   IRObject object;
   object.pointer = {};
-  object.members.emplace(
+  object.members.emplace_back(
       "name", IRObjectValue{{sourcemeta::core::Pointer{"properties", "name"}},
                             true,
                             false});
-  object.members.emplace(
+  object.members.emplace_back(
       "age", IRObjectValue{{sourcemeta::core::Pointer{"properties", "age"}},
                            false,
                            false});
@@ -797,12 +797,12 @@ export type Person_Properties_Age = number;
 export type Person_AdditionalProperties = string;
 
 export type Person = {
-  "age"?: Person_Properties_Age;
-  "name": Person_Properties_Name
+  "name": Person_Properties_Name;
+  "age"?: Person_Properties_Age
 } & {
   [K in string as K extends
-    "age" |
-    "name"
+    "name" |
+    "age"
   ? never : K]: Person_AdditionalProperties;
 };
 )TS"};
@@ -825,7 +825,7 @@ TEST(Generator_typescript,
 
   IRObject object;
   object.pointer = {};
-  object.members.emplace(
+  object.members.emplace_back(
       "id", IRObjectValue{
                 {sourcemeta::core::Pointer{"properties", "id"}}, true, false});
   object.additional = IRObjectValue{
@@ -883,7 +883,7 @@ TEST(Generator_typescript, object_with_additional_properties_false) {
 
   IRObject object;
   object.pointer = {};
-  object.members.emplace(
+  object.members.emplace_back(
       "foo", IRObjectValue{{sourcemeta::core::Pointer{"properties", "foo"}},
                            false,
                            false});
@@ -956,7 +956,7 @@ TEST(Generator_typescript, object_with_additional_properties_any) {
 
   IRObject object;
   object.pointer = {};
-  object.members.emplace(
+  object.members.emplace_back(
       "name", IRObjectValue{{sourcemeta::core::Pointer{"properties", "name"}},
                             false,
                             false});

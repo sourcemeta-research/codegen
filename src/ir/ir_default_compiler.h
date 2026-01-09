@@ -65,7 +65,7 @@ auto handle_object(const sourcemeta::core::JSON &schema,
        "additionalProperties", "minProperties", "maxProperties",
        "propertyNames"});
 
-  std::unordered_map<sourcemeta::core::JSON::String, IRObjectValue> members;
+  std::vector<std::pair<sourcemeta::core::JSON::String, IRObjectValue>> members;
 
   // Guaranteed by canonicalisation
   assert(subschema.defines("properties"));
@@ -91,7 +91,7 @@ auto handle_object(const sourcemeta::core::JSON &schema,
                                required_set.contains(entry.first),
                                false};
 
-    members.emplace(entry.first, std::move(member_value));
+    members.emplace_back(entry.first, std::move(member_value));
   }
 
   std::optional<IRObjectValue> additional{std::nullopt};

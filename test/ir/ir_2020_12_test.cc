@@ -47,11 +47,12 @@ TEST(IR_2020_12, test_2) {
   EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(1)));
   EXPECT_AS_STRING(std::get<IRObject>(result.at(1)).pointer, "");
   EXPECT_EQ(std::get<IRObject>(result.at(1)).members.size(), 1);
-  EXPECT_TRUE(std::get<IRObject>(result.at(1)).members.contains("foo"));
-  EXPECT_FALSE(std::get<IRObject>(result.at(1)).members.at("foo").required);
-  EXPECT_FALSE(std::get<IRObject>(result.at(1)).members.at("foo").immutable);
-  EXPECT_AS_STRING(std::get<IRObject>(result.at(1)).members.at("foo").pointer,
-                   "/properties/foo");
+  EXPECT_EQ(std::get<IRObject>(result.at(1)).members.at(0).first, "foo");
+  EXPECT_FALSE(std::get<IRObject>(result.at(1)).members.at(0).second.required);
+  EXPECT_FALSE(std::get<IRObject>(result.at(1)).members.at(0).second.immutable);
+  EXPECT_AS_STRING(
+      std::get<IRObject>(result.at(1)).members.at(0).second.pointer,
+      "/properties/foo");
   EXPECT_FALSE(std::get<IRObject>(result.at(1)).additional.has_value());
 }
 
@@ -364,11 +365,12 @@ TEST(IR_2020_12, object_with_additional_properties) {
   EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(2)));
   EXPECT_AS_STRING(std::get<IRObject>(result.at(2)).pointer, "");
   EXPECT_EQ(std::get<IRObject>(result.at(2)).members.size(), 1);
-  EXPECT_TRUE(std::get<IRObject>(result.at(2)).members.contains("foo"));
-  EXPECT_FALSE(std::get<IRObject>(result.at(2)).members.at("foo").required);
-  EXPECT_FALSE(std::get<IRObject>(result.at(2)).members.at("foo").immutable);
-  EXPECT_AS_STRING(std::get<IRObject>(result.at(2)).members.at("foo").pointer,
-                   "/properties/foo");
+  EXPECT_TRUE(std::get<IRObject>(result.at(2)).members.at(0).first == "foo");
+  EXPECT_FALSE(std::get<IRObject>(result.at(2)).members.at(0).second.required);
+  EXPECT_FALSE(std::get<IRObject>(result.at(2)).members.at(0).second.immutable);
+  EXPECT_AS_STRING(
+      std::get<IRObject>(result.at(2)).members.at(0).second.pointer,
+      "/properties/foo");
 
   EXPECT_TRUE(std::get<IRObject>(result.at(2)).additional.has_value());
   EXPECT_FALSE(std::get<IRObject>(result.at(2)).additional->required);
@@ -400,11 +402,12 @@ TEST(IR_2020_12, object_with_impossible_property) {
   EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(1)));
   EXPECT_AS_STRING(std::get<IRObject>(result.at(1)).pointer, "");
   EXPECT_EQ(std::get<IRObject>(result.at(1)).members.size(), 1);
-  EXPECT_TRUE(std::get<IRObject>(result.at(1)).members.contains("foo"));
-  EXPECT_FALSE(std::get<IRObject>(result.at(1)).members.at("foo").required);
-  EXPECT_FALSE(std::get<IRObject>(result.at(1)).members.at("foo").immutable);
-  EXPECT_AS_STRING(std::get<IRObject>(result.at(1)).members.at("foo").pointer,
-                   "/properties/foo");
+  EXPECT_TRUE(std::get<IRObject>(result.at(1)).members.at(0).first == "foo");
+  EXPECT_FALSE(std::get<IRObject>(result.at(1)).members.at(0).second.required);
+  EXPECT_FALSE(std::get<IRObject>(result.at(1)).members.at(0).second.immutable);
+  EXPECT_AS_STRING(
+      std::get<IRObject>(result.at(1)).members.at(0).second.pointer,
+      "/properties/foo");
   EXPECT_FALSE(std::get<IRObject>(result.at(1)).additional.has_value());
 }
 
@@ -434,11 +437,12 @@ TEST(IR_2020_12, object_with_impossible_additional_properties) {
   EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(2)));
   EXPECT_AS_STRING(std::get<IRObject>(result.at(2)).pointer, "");
   EXPECT_EQ(std::get<IRObject>(result.at(2)).members.size(), 1);
-  EXPECT_TRUE(std::get<IRObject>(result.at(2)).members.contains("foo"));
-  EXPECT_FALSE(std::get<IRObject>(result.at(2)).members.at("foo").required);
-  EXPECT_FALSE(std::get<IRObject>(result.at(2)).members.at("foo").immutable);
-  EXPECT_AS_STRING(std::get<IRObject>(result.at(2)).members.at("foo").pointer,
-                   "/properties/foo");
+  EXPECT_TRUE(std::get<IRObject>(result.at(2)).members.at(0).first == "foo");
+  EXPECT_FALSE(std::get<IRObject>(result.at(2)).members.at(0).second.required);
+  EXPECT_FALSE(std::get<IRObject>(result.at(2)).members.at(0).second.immutable);
+  EXPECT_AS_STRING(
+      std::get<IRObject>(result.at(2)).members.at(0).second.pointer,
+      "/properties/foo");
 
   EXPECT_TRUE(std::get<IRObject>(result.at(2)).additional.has_value());
   EXPECT_FALSE(std::get<IRObject>(result.at(2)).additional->required);
@@ -648,11 +652,12 @@ TEST(IR_2020_12, ref_recursive_to_root) {
   EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(1)));
   EXPECT_AS_STRING(std::get<IRObject>(result.at(1)).pointer, "");
   EXPECT_EQ(std::get<IRObject>(result.at(1)).members.size(), 1);
-  EXPECT_TRUE(std::get<IRObject>(result.at(1)).members.contains("child"));
-  EXPECT_FALSE(std::get<IRObject>(result.at(1)).members.at("child").required);
-  EXPECT_FALSE(std::get<IRObject>(result.at(1)).members.at("child").immutable);
-  EXPECT_AS_STRING(std::get<IRObject>(result.at(1)).members.at("child").pointer,
-                   "/properties/child");
+  EXPECT_TRUE(std::get<IRObject>(result.at(1)).members.at(0).first == "child");
+  EXPECT_FALSE(std::get<IRObject>(result.at(1)).members.at(0).second.required);
+  EXPECT_FALSE(std::get<IRObject>(result.at(1)).members.at(0).second.immutable);
+  EXPECT_AS_STRING(
+      std::get<IRObject>(result.at(1)).members.at(0).second.pointer,
+      "/properties/child");
   EXPECT_FALSE(std::get<IRObject>(result.at(1)).additional.has_value());
 }
 
@@ -686,21 +691,22 @@ TEST(IR_2020_12, nested_object_with_required_property) {
   EXPECT_AS_STRING(std::get<IRObject>(result.at(1)).pointer,
                    "/properties/nested");
   EXPECT_EQ(std::get<IRObject>(result.at(1)).members.size(), 1);
-  EXPECT_TRUE(std::get<IRObject>(result.at(1)).members.contains("name"));
-  EXPECT_TRUE(std::get<IRObject>(result.at(1)).members.at("name").required);
-  EXPECT_FALSE(std::get<IRObject>(result.at(1)).members.at("name").immutable);
-  EXPECT_AS_STRING(std::get<IRObject>(result.at(1)).members.at("name").pointer,
-                   "/properties/nested/properties/name");
+  EXPECT_TRUE(std::get<IRObject>(result.at(1)).members.at(0).first == "name");
+  EXPECT_TRUE(std::get<IRObject>(result.at(1)).members.at(0).second.required);
+  EXPECT_FALSE(std::get<IRObject>(result.at(1)).members.at(0).second.immutable);
+  EXPECT_AS_STRING(
+      std::get<IRObject>(result.at(1)).members.at(0).second.pointer,
+      "/properties/nested/properties/name");
   EXPECT_FALSE(std::get<IRObject>(result.at(1)).additional.has_value());
 
   EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(2)));
   EXPECT_AS_STRING(std::get<IRObject>(result.at(2)).pointer, "");
   EXPECT_EQ(std::get<IRObject>(result.at(2)).members.size(), 1);
-  EXPECT_TRUE(std::get<IRObject>(result.at(2)).members.contains("nested"));
-  EXPECT_FALSE(std::get<IRObject>(result.at(2)).members.at("nested").required);
-  EXPECT_FALSE(std::get<IRObject>(result.at(2)).members.at("nested").immutable);
+  EXPECT_TRUE(std::get<IRObject>(result.at(2)).members.at(0).first == "nested");
+  EXPECT_FALSE(std::get<IRObject>(result.at(2)).members.at(0).second.required);
+  EXPECT_FALSE(std::get<IRObject>(result.at(2)).members.at(0).second.immutable);
   EXPECT_AS_STRING(
-      std::get<IRObject>(result.at(2)).members.at("nested").pointer,
+      std::get<IRObject>(result.at(2)).members.at(0).second.pointer,
       "/properties/nested");
   EXPECT_FALSE(std::get<IRObject>(result.at(2)).additional.has_value());
 }
@@ -783,11 +789,12 @@ TEST(IR_2020_12, object_with_additional_properties_true) {
   EXPECT_TRUE(std::holds_alternative<IRObject>(result.at(8)));
   EXPECT_AS_STRING(std::get<IRObject>(result.at(8)).pointer, "");
   EXPECT_EQ(std::get<IRObject>(result.at(8)).members.size(), 1);
-  EXPECT_TRUE(std::get<IRObject>(result.at(8)).members.contains("name"));
-  EXPECT_FALSE(std::get<IRObject>(result.at(8)).members.at("name").required);
-  EXPECT_FALSE(std::get<IRObject>(result.at(8)).members.at("name").immutable);
-  EXPECT_AS_STRING(std::get<IRObject>(result.at(8)).members.at("name").pointer,
-                   "/properties/name");
+  EXPECT_TRUE(std::get<IRObject>(result.at(8)).members.at(0).first == "name");
+  EXPECT_FALSE(std::get<IRObject>(result.at(8)).members.at(0).second.required);
+  EXPECT_FALSE(std::get<IRObject>(result.at(8)).members.at(0).second.immutable);
+  EXPECT_AS_STRING(
+      std::get<IRObject>(result.at(8)).members.at(0).second.pointer,
+      "/properties/name");
   EXPECT_TRUE(std::get<IRObject>(result.at(8)).additional.has_value());
   EXPECT_AS_STRING(std::get<IRObject>(result.at(8)).additional->pointer,
                    "/additionalProperties");
