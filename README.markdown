@@ -11,7 +11,7 @@ Codegen
 | Core | `$id` | Yes |
 | Core | `$ref` | Yes |
 | Core | `$defs` | Yes |
-| Core | `$anchor` | No |
+| Core | `$anchor` | Yes |
 | Core | `$dynamicAnchor` | No (TODO: Simplify in canonicalisation) |
 | Core | `$dynamicRef` | No (TODO: Simplify in canonicalisation) |
 | Core | `$vocabulary` | Ignored |
