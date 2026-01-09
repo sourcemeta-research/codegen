@@ -701,7 +701,9 @@ TEST(Generator_typescript, union_at_root) {
 
 export type MyUnion_AnyOf_1 = string;
 
-export type MyUnion = MyUnion_AnyOf_0 | MyUnion_AnyOf_1;
+export type MyUnion =
+  MyUnion_AnyOf_0 |
+  MyUnion_AnyOf_1;
 )TS"};
 
   EXPECT_EQ(output.str(), expected);
@@ -744,7 +746,9 @@ TEST(Generator_typescript, union_nested_in_object) {
 
 export type MyObject_Properties_Value_AnyOf_1 = string;
 
-export type MyObject_Properties_Value = MyObject_Properties_Value_AnyOf_0 | MyObject_Properties_Value_AnyOf_1;
+export type MyObject_Properties_Value =
+  MyObject_Properties_Value_AnyOf_0 |
+  MyObject_Properties_Value_AnyOf_1;
 
 export interface MyObject {
   "value"?: MyObject_Properties_Value;

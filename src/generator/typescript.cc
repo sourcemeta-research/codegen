@@ -147,13 +147,13 @@ auto TypeScript::operator()(const IRTuple &entry) const -> void {
 auto TypeScript::operator()(const IRUnion &entry) const -> void {
   this->output << "export type "
                << sourcemeta::core::mangle(entry.pointer, this->prefix)
-               << " = ";
+               << " =\n";
 
   const char *separator{""};
   for (const auto &value : entry.values) {
-    this->output << separator
+    this->output << separator << "  "
                  << sourcemeta::core::mangle(value.pointer, this->prefix);
-    separator = " | ";
+    separator = " |\n";
   }
 
   this->output << ";\n";
