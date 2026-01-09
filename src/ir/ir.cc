@@ -28,11 +28,10 @@ auto compile(const sourcemeta::core::JSON &input,
   sourcemeta::core::SchemaTransformer canonicalizer;
   sourcemeta::core::add(canonicalizer,
                         sourcemeta::core::AlterSchemaMode::Canonicalizer);
-  const auto canonicalized{
+  [[maybe_unused]] const auto canonicalized{
       canonicalizer.apply(schema, walker, resolver,
                           [](const auto &, const auto, const auto,
                              const auto &) { assert(false); })};
-  // Canonicalisation only consists of transformable rules
   assert(canonicalized.first);
 
   // --------------------------------------------------------------------------
