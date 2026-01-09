@@ -80,26 +80,59 @@ auto TypeScript::operator()(const IREnumeration &entry) const -> void {
 }
 
 auto TypeScript::operator()(const IRObject &entry) const -> void {
-  this->output << "export interface "
-               << sourcemeta::core::mangle(entry.pointer, this->prefix)
-               << " {\n";
+  const auto type_name{sourcemeta::core::mangle(entry.pointer, this->prefix)};
+  const auto has_additional{entry.additional.has_value()};
+
+  if (has_additional) {
+    this->output << "type " << type_name << " = {\n";
+  } else {
+    this->output << "export interface " << type_name << " {\n";
+  }
+
+  // We always quote property names for safety. JSON Schema allows any string
+  // as a property name, but unquoted TypeScript/ECMAScript property names
+  // must be valid IdentifierName productions (see ECMA-262 section 12.7).
+  // Quoting allows any string to be used as a property name.
+  // See: https://tc39.es/ecma262/#sec-names-and-keywords
+  // See: https://mathiasbynens.be/notes/javascript-properties
+  std::size_t index{0};
   for (const auto &[member_name, member_value] : entry.members) {
     const auto optional_marker{member_value.required ? "" : "?"};
     const auto readonly_marker{member_value.immutable ? "readonly " : ""};
-    // We always quote property names for safety. JSON Schema allows any string
-    // as a property name, but unquoted TypeScript/ECMAScript property names
-    // must be valid IdentifierName productions (see ECMA-262 section 12.7).
-    // Quoting allows any string to be used as a property name.
-    // See: https://tc39.es/ecma262/#sec-names-and-keywords
-    // See: https://mathiasbynens.be/notes/javascript-properties
+    const auto is_last{index == entry.members.size() - 1};
+    const auto semicolon{(has_additional && is_last) ? "" : ";"};
+
     this->output << "  " << readonly_marker << "\""
                  << escape_string(member_name) << "\"" << optional_marker
                  << ": "
                  << sourcemeta::core::mangle(member_value.pointer, this->prefix)
-                 << ";\n";
+                 << semicolon << "\n";
+    ++index;
   }
 
-  this->output << "}\n";
+  if (has_additional) {
+    this->output << "} & {\n";
+    this->output << "  [K in string as K extends\n";
+
+    index = 0;
+    for (const auto &[member_name, member_value] : entry.members) {
+      const auto is_last{index == entry.members.size() - 1};
+      this->output << "    \"" << escape_string(member_name) << "\"";
+      if (!is_last) {
+        this->output << " |";
+      }
+      this->output << "\n";
+      ++index;
+    }
+
+    this->output << "  ? never : K]: "
+                 << sourcemeta::core::mangle(entry.additional->pointer,
+                                             this->prefix)
+                 << ";\n";
+    this->output << "};\n";
+  } else {
+    this->output << "}\n";
+  }
 }
 
 auto TypeScript::operator()(const IRImpossible &entry) const -> void {

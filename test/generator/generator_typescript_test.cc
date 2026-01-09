@@ -757,3 +757,136 @@ export interface MyObject {
 
   EXPECT_EQ(output.str(), expected);
 }
+
+TEST(Generator_typescript, object_with_additional_properties_typed) {
+  using namespace sourcemeta::codegen;
+
+  IRResult result;
+
+  result.emplace_back(IRScalar{
+      {sourcemeta::core::Pointer{"properties", "name"}}, IRScalarType::String});
+
+  result.emplace_back(IRScalar{{sourcemeta::core::Pointer{"properties", "age"}},
+                               IRScalarType::Integer});
+
+  result.emplace_back(
+      IRScalar{{sourcemeta::core::Pointer{"additionalProperties"}},
+               IRScalarType::String});
+
+  IRObject object;
+  object.pointer = {};
+  object.members.emplace(
+      "name", IRObjectValue{{sourcemeta::core::Pointer{"properties", "name"}},
+                            true,
+                            false});
+  object.members.emplace(
+      "age", IRObjectValue{{sourcemeta::core::Pointer{"properties", "age"}},
+                           false,
+                           false});
+  object.additional = IRObjectValue{
+      {sourcemeta::core::Pointer{"additionalProperties"}}, false, false};
+  result.emplace_back(std::move(object));
+
+  std::ostringstream output;
+  generate<TypeScript>(output, result, "Person");
+
+  const auto expected{R"TS(export type Person_Properties_Name = string;
+
+export type Person_Properties_Age = number;
+
+export type Person_AdditionalProperties = string;
+
+type Person = {
+  "age"?: Person_Properties_Age;
+  "name": Person_Properties_Name
+} & {
+  [K in string as K extends
+    "age" |
+    "name"
+  ? never : K]: Person_AdditionalProperties;
+};
+)TS"};
+
+  EXPECT_EQ(output.str(), expected);
+}
+
+TEST(Generator_typescript,
+     object_with_single_property_and_additional_properties) {
+  using namespace sourcemeta::codegen;
+
+  IRResult result;
+
+  result.emplace_back(IRScalar{{sourcemeta::core::Pointer{"properties", "id"}},
+                               IRScalarType::Integer});
+
+  result.emplace_back(
+      IRScalar{{sourcemeta::core::Pointer{"additionalProperties"}},
+               IRScalarType::String});
+
+  IRObject object;
+  object.pointer = {};
+  object.members.emplace(
+      "id", IRObjectValue{
+                {sourcemeta::core::Pointer{"properties", "id"}}, true, false});
+  object.additional = IRObjectValue{
+      {sourcemeta::core::Pointer{"additionalProperties"}}, false, false};
+  result.emplace_back(std::move(object));
+
+  std::ostringstream output;
+  generate<TypeScript>(output, result, "Item");
+
+  const auto expected{R"TS(export type Item_Properties_Id = number;
+
+export type Item_AdditionalProperties = string;
+
+type Item = {
+  "id": Item_Properties_Id
+} & {
+  [K in string as K extends
+    "id"
+  ? never : K]: Item_AdditionalProperties;
+};
+)TS"};
+
+  EXPECT_EQ(output.str(), expected);
+}
+
+TEST(Generator_typescript, object_with_additional_properties_false) {
+  using namespace sourcemeta::codegen;
+
+  IRResult result;
+
+  result.emplace_back(IRScalar{{sourcemeta::core::Pointer{"properties", "foo"}},
+                               IRScalarType::String});
+
+  result.emplace_back(
+      IRImpossible{{sourcemeta::core::Pointer{"additionalProperties"}}});
+
+  IRObject object;
+  object.pointer = {};
+  object.members.emplace(
+      "foo", IRObjectValue{{sourcemeta::core::Pointer{"properties", "foo"}},
+                           false,
+                           false});
+  object.additional = IRObjectValue{
+      {sourcemeta::core::Pointer{"additionalProperties"}}, false, false};
+  result.emplace_back(std::move(object));
+
+  std::ostringstream output;
+  generate<TypeScript>(output, result, "MyObject");
+
+  const auto expected{R"TS(export type MyObject_Properties_Foo = string;
+
+export type MyObject_AdditionalProperties = never;
+
+type MyObject = {
+  "foo"?: MyObject_Properties_Foo
+} & {
+  [K in string as K extends
+    "foo"
+  ? never : K]: MyObject_AdditionalProperties;
+};
+)TS"};
+
+  EXPECT_EQ(output.str(), expected);
+}
