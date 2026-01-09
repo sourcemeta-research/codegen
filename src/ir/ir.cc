@@ -9,13 +9,11 @@
 
 namespace sourcemeta::codegen {
 
-auto compile(
-    const sourcemeta::core::JSON &input,
-    const sourcemeta::core::SchemaWalker &walker,
-    const sourcemeta::core::SchemaResolver &resolver, const Compiler &compiler,
-    const std::optional<sourcemeta::core::JSON::String> &default_dialect,
-    const std::optional<sourcemeta::core::JSON::String> &default_id)
-    -> IRResult {
+auto compile(const sourcemeta::core::JSON &input,
+             const sourcemeta::core::SchemaWalker &walker,
+             const sourcemeta::core::SchemaResolver &resolver,
+             const Compiler &compiler, const std::string_view default_dialect,
+             const std::string_view default_id) -> IRResult {
   // --------------------------------------------------------------------------
   // (1) Bundle the schema to resolve external references
   // --------------------------------------------------------------------------
@@ -43,7 +41,7 @@ auto compile(
 
   sourcemeta::core::SchemaFrame frame{
       sourcemeta::core::SchemaFrame::Mode::References};
-  frame.analyse(schema, walker, resolver);
+  frame.analyse(schema, walker, resolver, default_dialect, default_id);
 
   // --------------------------------------------------------------------------
   // (4) Convert every subschema into a code generation object

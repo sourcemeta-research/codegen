@@ -37,7 +37,7 @@ auto escape_string(const std::string &input) -> std::string {
 
 namespace sourcemeta::codegen {
 
-TypeScript::TypeScript(std::ostream &stream, const std::string &type_prefix)
+TypeScript::TypeScript(std::ostream &stream, const std::string_view type_prefix)
     : output{stream}, prefix{type_prefix} {}
 
 auto TypeScript::operator()(const IRScalar &entry) const -> void {

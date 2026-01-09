@@ -7,15 +7,15 @@
 
 #include <sourcemeta/codegen/ir.h>
 
-#include <ostream> // std::ostream
-#include <string>  // std::string
+#include <ostream>     // std::ostream
+#include <string_view> // std::string_view
 
 namespace sourcemeta::codegen {
 
 /// @ingroup generator
 class SOURCEMETA_CODEGEN_GENERATOR_EXPORT TypeScript {
 public:
-  TypeScript(std::ostream &stream, const std::string &type_prefix);
+  TypeScript(std::ostream &stream, std::string_view type_prefix);
   auto operator()(const IRScalar &entry) const -> void;
   auto operator()(const IREnumeration &entry) const -> void;
   auto operator()(const IRObject &entry) const -> void;
@@ -28,8 +28,7 @@ public:
 private:
   // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
   std::ostream &output;
-  // NOLINTNEXTLINE(cppcoreguidelines-avoid-const-or-ref-data-members)
-  const std::string &prefix;
+  std::string_view prefix;
 };
 
 } // namespace sourcemeta::codegen

@@ -9,6 +9,7 @@
 #include <sourcemeta/core/jsonpointer.h>
 
 #include <exception>   // std::exception
+#include <functional>  // std::reference_wrapper
 #include <string>      // std::string
 #include <string_view> // std::string_view
 #include <utility>     // std::move
@@ -31,6 +32,12 @@ public:
                      const char *message)
       : json_{std::move(json)}, pointer_{std::move(pointer)},
         keyword_{std::move(keyword)}, message_{message} {}
+  UnsupportedKeyword(sourcemeta::core::JSON json,
+                     const sourcemeta::core::WeakPointer &pointer,
+                     std::string keyword, const char *message)
+      : UnsupportedKeyword{std::move(json),
+                           sourcemeta::core::to_pointer(pointer),
+                           std::move(keyword), message} {}
   UnsupportedKeyword(sourcemeta::core::JSON json,
                      sourcemeta::core::Pointer pointer, std::string keyword,
                      std::string message) = delete;
@@ -76,6 +83,12 @@ public:
       : json_{std::move(json)}, pointer_{std::move(pointer)},
         keyword_{std::move(keyword)}, message_{message} {}
   UnsupportedKeywordValue(sourcemeta::core::JSON json,
+                          const sourcemeta::core::WeakPointer &pointer,
+                          std::string keyword, const char *message)
+      : UnsupportedKeywordValue{std::move(json),
+                                sourcemeta::core::to_pointer(pointer),
+                                std::move(keyword), message} {}
+  UnsupportedKeywordValue(sourcemeta::core::JSON json,
                           sourcemeta::core::Pointer pointer,
                           std::string keyword, std::string message) = delete;
   UnsupportedKeywordValue(sourcemeta::core::JSON json,
@@ -118,6 +131,11 @@ public:
                    sourcemeta::core::Pointer pointer, const char *message)
       : json_{std::move(json)}, pointer_{std::move(pointer)},
         message_{message} {}
+  UnexpectedSchema(sourcemeta::core::JSON json,
+                   const sourcemeta::core::WeakPointer &pointer,
+                   const char *message)
+      : UnexpectedSchema{std::move(json), sourcemeta::core::to_pointer(pointer),
+                         message} {}
   UnexpectedSchema(sourcemeta::core::JSON json,
                    sourcemeta::core::Pointer pointer,
                    std::string message) = delete;

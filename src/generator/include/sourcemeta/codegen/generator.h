@@ -13,9 +13,9 @@
 
 #include <sourcemeta/core/jsonpointer.h>
 
-#include <ostream> // std::ostream
-#include <string>  // std::string
-#include <variant> // std::visit
+#include <ostream>     // std::ostream
+#include <string_view> // std::string_view
+#include <variant>     // std::visit
 
 /// @defgroup generator Generator
 /// @brief The codegen JSON Schema code generation package
@@ -25,7 +25,7 @@ namespace sourcemeta::codegen {
 /// @ingroup generator
 template <typename T>
 auto generate(std::ostream &output, const IRResult &result,
-              const std::string &prefix = "Schema") -> void {
+              const std::string_view prefix = "Schema") -> void {
   const T visitor{output, prefix};
   const char *separator{""};
   for (const auto &entity : result) {

@@ -32,7 +32,8 @@ auto handle_impossible(const sourcemeta::core::JSON &,
                        const sourcemeta::core::Vocabularies &,
                        const sourcemeta::core::SchemaResolver &,
                        const sourcemeta::core::JSON &) -> IRImpossible {
-  return IRImpossible{{.pointer = location.pointer}};
+  return IRImpossible{
+      {.pointer = sourcemeta::core::to_pointer(location.pointer)}};
 }
 
 auto handle_string(const sourcemeta::core::JSON &schema,
@@ -44,7 +45,8 @@ auto handle_string(const sourcemeta::core::JSON &schema,
   ONLY_WHITELIST_KEYWORDS(
       schema, subschema, location.pointer,
       {"$schema", "$id", "type", "minLength", "maxLength", "pattern"});
-  return IRScalar{{.pointer = location.pointer}, IRScalarType::String};
+  return IRScalar{{.pointer = sourcemeta::core::to_pointer(location.pointer)},
+                  IRScalarType::String};
 }
 
 auto handle_object(const sourcemeta::core::JSON &schema,
@@ -81,11 +83,11 @@ auto handle_object(const sourcemeta::core::JSON &schema,
   }
 
   for (const auto &entry : properties.as_object()) {
-    auto property_pointer{location.pointer};
+    auto property_pointer{sourcemeta::core::to_pointer(location.pointer)};
     property_pointer.push_back("properties");
     property_pointer.push_back(entry.first);
 
-    IRObjectValue member_value{{.pointer = property_pointer},
+    IRObjectValue member_value{{.pointer = std::move(property_pointer)},
                                required_set.contains(entry.first),
                                false};
 
@@ -94,14 +96,16 @@ auto handle_object(const sourcemeta::core::JSON &schema,
 
   std::optional<IRObjectValue> additional{std::nullopt};
   if (subschema.defines("additionalProperties")) {
-    auto additional_pointer{location.pointer};
+    auto additional_pointer{sourcemeta::core::to_pointer(location.pointer)};
     additional_pointer.push_back("additionalProperties");
 
-    additional = IRObjectValue{{.pointer = additional_pointer}, false, false};
+    additional =
+        IRObjectValue{{.pointer = std::move(additional_pointer)}, false, false};
   }
 
-  return IRObject{
-      {.pointer = location.pointer}, std::move(members), std::move(additional)};
+  return IRObject{{.pointer = sourcemeta::core::to_pointer(location.pointer)},
+                  std::move(members),
+                  std::move(additional)};
 }
 
 auto handle_integer(const sourcemeta::core::JSON &schema,
@@ -114,7 +118,8 @@ auto handle_integer(const sourcemeta::core::JSON &schema,
                           {"$schema", "$id", "type", "minimum", "maximum",
                            "exclusiveMinimum", "exclusiveMaximum",
                            "multipleOf"});
-  return IRScalar{{.pointer = location.pointer}, IRScalarType::Integer};
+  return IRScalar{{.pointer = sourcemeta::core::to_pointer(location.pointer)},
+                  IRScalarType::Integer};
 }
 
 auto handle_number(const sourcemeta::core::JSON &schema,
@@ -127,7 +132,8 @@ auto handle_number(const sourcemeta::core::JSON &schema,
                           {"$schema", "$id", "type", "minimum", "maximum",
                            "exclusiveMinimum", "exclusiveMaximum",
                            "multipleOf"});
-  return IRScalar{{.pointer = location.pointer}, IRScalarType::Number};
+  return IRScalar{{.pointer = sourcemeta::core::to_pointer(location.pointer)},
+                  IRScalarType::Number};
 }
 
 auto handle_array(const sourcemeta::core::JSON &schema,
@@ -151,22 +157,22 @@ auto handle_array(const sourcemeta::core::JSON &schema,
 
     std::vector<IRType> tuple_items;
     for (std::size_t index = 0; index < prefix_items.size(); ++index) {
-      auto item_pointer{location.pointer};
+      auto item_pointer{sourcemeta::core::to_pointer(location.pointer)};
       item_pointer.push_back("prefixItems");
       item_pointer.push_back(index);
 
-      tuple_items.push_back({.pointer = item_pointer});
+      tuple_items.push_back({.pointer = std::move(item_pointer)});
     }
 
     std::optional<IRType> additional{std::nullopt};
     if (subschema.defines("items")) {
-      auto additional_pointer{location.pointer};
+      auto additional_pointer{sourcemeta::core::to_pointer(location.pointer)};
       additional_pointer.push_back("items");
 
-      additional = IRType{.pointer = additional_pointer};
+      additional = IRType{.pointer = std::move(additional_pointer)};
     }
 
-    return IRTuple{{.pointer = location.pointer},
+    return IRTuple{{.pointer = sourcemeta::core::to_pointer(location.pointer)},
                    std::move(tuple_items),
                    std::move(additional)};
   }
@@ -182,31 +188,32 @@ auto handle_array(const sourcemeta::core::JSON &schema,
 
     std::vector<IRType> tuple_items;
     for (std::size_t index = 0; index < items_array.size(); ++index) {
-      auto item_pointer{location.pointer};
+      auto item_pointer{sourcemeta::core::to_pointer(location.pointer)};
       item_pointer.push_back("items");
       item_pointer.push_back(index);
 
-      tuple_items.push_back({.pointer = item_pointer});
+      tuple_items.push_back({.pointer = std::move(item_pointer)});
     }
 
     std::optional<IRType> additional{std::nullopt};
     if (subschema.defines("additionalItems")) {
-      auto additional_pointer{location.pointer};
+      auto additional_pointer{sourcemeta::core::to_pointer(location.pointer)};
       additional_pointer.push_back("additionalItems");
 
-      additional = IRType{.pointer = additional_pointer};
+      additional = IRType{.pointer = std::move(additional_pointer)};
     }
 
-    return IRTuple{{.pointer = location.pointer},
+    return IRTuple{{.pointer = sourcemeta::core::to_pointer(location.pointer)},
                    std::move(tuple_items),
                    std::move(additional)};
   }
 
   assert(subschema.defines("items"));
-  auto items_pointer{location.pointer};
+  auto items_pointer{sourcemeta::core::to_pointer(location.pointer)};
   items_pointer.push_back("items");
 
-  return IRArray{{.pointer = location.pointer}, {.pointer = items_pointer}};
+  return IRArray{{.pointer = sourcemeta::core::to_pointer(location.pointer)},
+                 {.pointer = std::move(items_pointer)}};
 }
 
 auto handle_enum(const sourcemeta::core::JSON &schema,
@@ -221,19 +228,24 @@ auto handle_enum(const sourcemeta::core::JSON &schema,
 
   // Boolean and null special cases
   if (enum_json.size() == 1 && enum_json.at(0).is_null()) {
-    return IRScalar{{.pointer = location.pointer}, IRScalarType::Null};
+    return IRScalar{{.pointer = sourcemeta::core::to_pointer(location.pointer)},
+                    IRScalarType::Null};
   } else if (enum_json.size() == 2) {
     const auto &first{enum_json.at(0)};
     const auto &second{enum_json.at(1)};
     if ((first.is_boolean() && second.is_boolean()) &&
         (first.to_boolean() != second.to_boolean())) {
-      return IRScalar{{.pointer = location.pointer}, IRScalarType::Boolean};
+      return IRScalar{
+          {.pointer = sourcemeta::core::to_pointer(location.pointer)},
+          IRScalarType::Boolean};
     }
   }
 
   std::vector<sourcemeta::core::JSON> values{enum_json.as_array().cbegin(),
                                              enum_json.as_array().cend()};
-  return IREnumeration{{.pointer = location.pointer}, std::move(values)};
+  return IREnumeration{
+      {.pointer = sourcemeta::core::to_pointer(location.pointer)},
+      std::move(values)};
 }
 
 auto handle_anyof(const sourcemeta::core::JSON &schema,
@@ -251,14 +263,15 @@ auto handle_anyof(const sourcemeta::core::JSON &schema,
 
   std::vector<IRType> branches;
   for (std::size_t index = 0; index < any_of.size(); ++index) {
-    auto branch_pointer{location.pointer};
+    auto branch_pointer{sourcemeta::core::to_pointer(location.pointer)};
     branch_pointer.push_back("anyOf");
     branch_pointer.push_back(index);
 
-    branches.push_back({.pointer = branch_pointer});
+    branches.push_back({.pointer = std::move(branch_pointer)});
   }
 
-  return IRUnion{{.pointer = location.pointer}, std::move(branches)};
+  return IRUnion{{.pointer = sourcemeta::core::to_pointer(location.pointer)},
+                 std::move(branches)};
 }
 
 auto handle_ref(const sourcemeta::core::JSON &schema,
@@ -270,10 +283,13 @@ auto handle_ref(const sourcemeta::core::JSON &schema,
   ONLY_WHITELIST_KEYWORDS(schema, subschema, location.pointer,
                           {"$schema", "$id", "$ref"});
 
+  auto ref_pointer{sourcemeta::core::to_pointer(location.pointer)};
+  ref_pointer.push_back("$ref");
+  const auto ref_weak_pointer{sourcemeta::core::to_weak_pointer(ref_pointer)};
+
   const auto &references{frame.references()};
-  const auto reference{
-      references.find({sourcemeta::core::SchemaReferenceType::Static,
-                       location.pointer.concat({"$ref"})})};
+  const auto reference{references.find(
+      {sourcemeta::core::SchemaReferenceType::Static, ref_weak_pointer})};
   assert(reference != references.cend());
 
   const auto &destination{reference->second.destination};
@@ -285,8 +301,9 @@ auto handle_ref(const sourcemeta::core::JSON &schema,
 
   const auto &target_location{target.value().get()};
 
-  return IRReference{{.pointer = location.pointer},
-                     {.pointer = target_location.pointer}};
+  return IRReference{
+      {.pointer = sourcemeta::core::to_pointer(location.pointer)},
+      {.pointer = sourcemeta::core::to_pointer(target_location.pointer)}};
 }
 
 auto default_compiler(const sourcemeta::core::JSON &schema,

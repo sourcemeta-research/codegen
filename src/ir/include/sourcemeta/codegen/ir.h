@@ -111,11 +111,8 @@ SOURCEMETA_CODEGEN_IR_EXPORT
 auto compile(const sourcemeta::core::JSON &schema,
              const sourcemeta::core::SchemaWalker &walker,
              const sourcemeta::core::SchemaResolver &resolver,
-             const Compiler &compiler,
-             const std::optional<sourcemeta::core::JSON::String>
-                 &default_dialect = std::nullopt,
-             const std::optional<sourcemeta::core::JSON::String> &default_id =
-                 std::nullopt) -> IRResult;
+             const Compiler &compiler, std::string_view default_dialect = "",
+             std::string_view default_id = "") -> IRResult;
 
 } // namespace sourcemeta::codegen
 
