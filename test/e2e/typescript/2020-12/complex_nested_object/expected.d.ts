@@ -16,7 +16,7 @@ export type Record_Properties_Meta_AdditionalProperties = never;
 
 export type Record_Properties_Meta = {
   "origin"?: Record_Properties_Meta_Properties_Origin;
-  "originId"?: Record_Properties_Meta_Properties_OriginId
+  "originId"?: Record_Properties_Meta_Properties_OriginId;
 } & {
   [K in string as K extends
     "origin" |
@@ -32,7 +32,7 @@ export type Record_Properties_LocationInfo_AdditionalProperties = never;
 
 export type Record_Properties_LocationInfo = {
   "stateCode"?: Record_Properties_LocationInfo_Properties_StateCode;
-  "areaCode"?: Record_Properties_LocationInfo_Properties_AreaCode
+  "areaCode"?: Record_Properties_LocationInfo_Properties_AreaCode;
 } & {
   [K in string as K extends
     "stateCode" |
@@ -82,7 +82,7 @@ export type Record_Properties_Items_Items_Properties_Meta_AdditionalProperties =
 
 export type Record_Properties_Items_Items_Properties_Meta = {
   "origin"?: Record_Properties_Items_Items_Properties_Meta_Properties_Origin;
-  "originId"?: Record_Properties_Items_Items_Properties_Meta_Properties_OriginId
+  "originId"?: Record_Properties_Items_Items_Properties_Meta_Properties_OriginId;
 } & {
   [K in string as K extends
     "origin" |
@@ -119,7 +119,7 @@ export type Record_Properties_Items_Items = {
   "remarks"?: Record_Properties_Items_Items_Properties_Remarks;
   "category"?: Record_Properties_Items_Items_Properties_Category;
   "subCategory"?: Record_Properties_Items_Items_Properties_SubCategory;
-  "meta"?: Record_Properties_Items_Items_Properties_Meta
+  "meta"?: Record_Properties_Items_Items_Properties_Meta;
 } & {
   [K in string as K extends
     "itemId" |
@@ -159,7 +159,7 @@ export type Record_Properties_Entity = {
   "birthDate": Record_Properties_Entity_Properties_BirthDate;
   "category"?: Record_Properties_Entity_Properties_Category;
   "classification"?: Record_Properties_Entity_Properties_Classification;
-  "locations": Record_Properties_Entity_Properties_Locations
+  "locations": Record_Properties_Entity_Properties_Locations;
 } & {
   [K in string as K extends
     "fullName" |
@@ -191,7 +191,7 @@ export type Record_X24Defs_UTimestamp = {
   "year": Record_X24Defs_UTimestamp_Properties_Year;
   "month": Record_X24Defs_UTimestamp_Properties_Month;
   "day": Record_X24Defs_UTimestamp_Properties_Day;
-  "isoFormat"?: Record_X24Defs_UTimestamp_Properties_IsoFormat
+  "isoFormat"?: Record_X24Defs_UTimestamp_Properties_IsoFormat;
 } & {
   [K in string as K extends
     "rawValue" |
@@ -234,7 +234,7 @@ export type Record_X24Defs_ULocation = {
   "district"?: Record_X24Defs_ULocation_Properties_District;
   "region": Record_X24Defs_ULocation_Properties_Region;
   "postalCode": Record_X24Defs_ULocation_Properties_PostalCode;
-  "country": Record_X24Defs_ULocation_Properties_Country
+  "country": Record_X24Defs_ULocation_Properties_Country;
 } & {
   [K in string as K extends
     "rawValue" |
@@ -286,7 +286,7 @@ export type Record_X24Defs_UFullName = {
   "middleName"?: Record_X24Defs_UFullName_Properties_MiddleName;
   "familyName": Record_X24Defs_UFullName_Properties_FamilyName;
   "suffix"?: Record_X24Defs_UFullName_Properties_Suffix;
-  "prefix"?: Record_X24Defs_UFullName_Properties_Prefix
+  "prefix"?: Record_X24Defs_UFullName_Properties_Prefix;
 } & {
   [K in string as K extends
     "rawValue" |
@@ -308,7 +308,7 @@ export type Record = {
   "entity": Record_Properties_Entity;
   "notes"?: Record_Properties_Notes;
   "items": Record_Properties_Items;
-  "meta"?: Record_Properties_Meta
+  "meta"?: Record_Properties_Meta;
 } & {
   [K in string as K extends
     "recordId" |

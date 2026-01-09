@@ -798,7 +798,7 @@ export type Person_AdditionalProperties = string;
 
 export type Person = {
   "name": Person_Properties_Name;
-  "age"?: Person_Properties_Age
+  "age"?: Person_Properties_Age;
 } & {
   [K in string as K extends
     "name" |
@@ -840,7 +840,7 @@ TEST(Generator_typescript,
 export type Item_AdditionalProperties = string;
 
 export type Item = {
-  "id": Item_Properties_Id
+  "id": Item_Properties_Id;
 } & {
   [K in string as K extends
     "id"
@@ -899,7 +899,7 @@ TEST(Generator_typescript, object_with_additional_properties_false) {
 export type MyObject_AdditionalProperties = never;
 
 export type MyObject = {
-  "foo"?: MyObject_Properties_Foo
+  "foo"?: MyObject_Properties_Foo;
 } & {
   [K in string as K extends
     "foo"
@@ -987,7 +987,7 @@ export type Test_AdditionalProperties =
   Test_AdditionalProperties_AnyOf_4;
 
 export type Test = {
-  "name"?: Test_Properties_Name
+  "name"?: Test_Properties_Name;
 } & {
   [K in string as K extends
     "name"

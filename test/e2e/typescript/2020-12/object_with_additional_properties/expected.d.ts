@@ -6,7 +6,7 @@ export type Person_AdditionalProperties = string;
 
 export type Person = {
   "name": Person_Properties_Name;
-  "age"?: Person_Properties_Age
+  "age"?: Person_Properties_Age;
 } & {
   [K in string as K extends
     "name" |

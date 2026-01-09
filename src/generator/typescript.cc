@@ -103,26 +103,26 @@ auto TypeScript::operator()(const IRObject &entry) const -> void {
   // Quoting allows any string to be used as a property name.
   // See: https://tc39.es/ecma262/#sec-names-and-keywords
   // See: https://mathiasbynens.be/notes/javascript-properties
-  std::size_t index{0};
   for (const auto &[member_name, member_value] : entry.members) {
     const auto optional_marker{member_value.required ? "" : "?"};
     const auto readonly_marker{member_value.immutable ? "readonly " : ""};
-    const auto is_last{index == entry.members.size() - 1};
-    const auto semicolon{(has_additional && is_last) ? "" : ";"};
 
     this->output << "  " << readonly_marker << "\""
                  << escape_string(member_name) << "\"" << optional_marker
                  << ": "
                  << sourcemeta::core::mangle(member_value.pointer, this->prefix)
-                 << semicolon << "\n";
-    ++index;
+                 << ";\n";
   }
 
   if (has_additional) {
     this->output << "} & {\n";
+
+    // While we could do this with the more idiomatic `Record<Exclude<string,
+    // X>, Y>`, we choose the more verbose manner in order to allow users to
+    // declare a type called `Record`
     this->output << "  [K in string as K extends\n";
 
-    index = 0;
+    std::size_t index{0};
     for (const auto &[member_name, member_value] : entry.members) {
       const auto is_last{index == entry.members.size() - 1};
       this->output << "    \"" << escape_string(member_name) << "\"";
