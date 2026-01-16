@@ -635,6 +635,70 @@ TEST(IR_2020_12, anyof_three_branches) {
                    "/anyOf/2");
 }
 
+TEST(IR_2020_12, oneof_two_branches) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "oneOf": [
+      { "type": "string" },
+      { "type": "integer" }
+    ]
+  })JSON")};
+
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
+
+  using namespace sourcemeta::codegen;
+
+  EXPECT_EQ(result.size(), 3);
+
+  EXPECT_IR_SCALAR(result, 0, Integer, "/oneOf/1");
+  EXPECT_IR_SCALAR(result, 1, String, "/oneOf/0");
+
+  EXPECT_TRUE(std::holds_alternative<IRUnion>(result.at(2)));
+  EXPECT_AS_STRING(std::get<IRUnion>(result.at(2)).pointer, "");
+  EXPECT_EQ(std::get<IRUnion>(result.at(2)).values.size(), 2);
+  EXPECT_AS_STRING(std::get<IRUnion>(result.at(2)).values.at(0).pointer,
+                   "/oneOf/0");
+  EXPECT_AS_STRING(std::get<IRUnion>(result.at(2)).values.at(1).pointer,
+                   "/oneOf/1");
+}
+
+TEST(IR_2020_12, oneof_three_branches) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "oneOf": [
+      { "type": "string" },
+      { "type": "integer" },
+      { "type": "boolean" }
+    ]
+  })JSON")};
+
+  const auto result{
+      sourcemeta::codegen::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::codegen::default_compiler)};
+
+  using namespace sourcemeta::codegen;
+
+  EXPECT_EQ(result.size(), 4);
+
+  EXPECT_IR_SCALAR(result, 0, Boolean, "/oneOf/2");
+  EXPECT_IR_SCALAR(result, 1, Integer, "/oneOf/1");
+  EXPECT_IR_SCALAR(result, 2, String, "/oneOf/0");
+
+  EXPECT_TRUE(std::holds_alternative<IRUnion>(result.at(3)));
+  EXPECT_AS_STRING(std::get<IRUnion>(result.at(3)).pointer, "");
+  EXPECT_EQ(std::get<IRUnion>(result.at(3)).values.size(), 3);
+  EXPECT_AS_STRING(std::get<IRUnion>(result.at(3)).values.at(0).pointer,
+                   "/oneOf/0");
+  EXPECT_AS_STRING(std::get<IRUnion>(result.at(3)).values.at(1).pointer,
+                   "/oneOf/1");
+  EXPECT_AS_STRING(std::get<IRUnion>(result.at(3)).values.at(2).pointer,
+                   "/oneOf/2");
+}
+
 TEST(IR_2020_12, ref_recursive_to_root) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
