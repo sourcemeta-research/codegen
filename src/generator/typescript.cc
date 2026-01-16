@@ -1,5 +1,6 @@
 #include <sourcemeta/codegen/generator.h>
 
+#include <iomanip> // std::hex, std::setfill, std::setw
 #include <sstream> // std::ostringstream
 
 namespace {
@@ -15,6 +16,12 @@ auto escape_string(const std::string &input) -> std::string {
       case '"':
         result << "\\\"";
         break;
+      case '\b':
+        result << "\\b";
+        break;
+      case '\f':
+        result << "\\f";
+        break;
       case '\n':
         result << "\\n";
         break;
@@ -25,7 +32,13 @@ auto escape_string(const std::string &input) -> std::string {
         result << "\\t";
         break;
       default:
-        result << character;
+        // Escape other control characters (< 0x20) using \uXXXX format
+        if (static_cast<unsigned char>(character) < 0x20) {
+          result << "\\u" << std::hex << std::setfill('0') << std::setw(4)
+                 << static_cast<int>(static_cast<unsigned char>(character));
+        } else {
+          result << character;
+        }
         break;
     }
   }
