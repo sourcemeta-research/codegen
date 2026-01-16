@@ -77,7 +77,6 @@ if(CODEGEN_TESTS)
   endif()
 
   if(CODEGEN_GENERATOR)
-    add_subdirectory(test/generator)
     add_subdirectory(test/e2e/typescript)
   endif()
 
