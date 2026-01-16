@@ -1,0 +1,12 @@
+contrib/
+doxygen/
+test/
+vendor/
+.ackrc
+.editorconfig
+Brewfile
+DEPENDENCIES
+Makefile
+package-lock.json
+package.json
+README.markdown
