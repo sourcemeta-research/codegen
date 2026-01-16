@@ -285,6 +285,33 @@ auto handle_anyof(const sourcemeta::core::JSON &schema,
                  std::move(branches)};
 }
 
+auto handle_oneof(const sourcemeta::core::JSON &schema,
+                  const sourcemeta::core::SchemaFrame &,
+                  const sourcemeta::core::SchemaFrame::Location &location,
+                  const sourcemeta::core::Vocabularies &,
+                  const sourcemeta::core::SchemaResolver &,
+                  const sourcemeta::core::JSON &subschema) -> IREntity {
+  ONLY_WHITELIST_KEYWORDS(
+      schema, subschema, location.pointer,
+      {"$schema", "$id", "$anchor", "$defs", "$vocabulary", "oneOf"});
+
+  const auto &one_of{subschema.at("oneOf")};
+  assert(one_of.is_array());
+  assert(one_of.size() >= 2);
+
+  std::vector<IRType> branches;
+  for (std::size_t index = 0; index < one_of.size(); ++index) {
+    auto branch_pointer{sourcemeta::core::to_pointer(location.pointer)};
+    branch_pointer.push_back("oneOf");
+    branch_pointer.push_back(index);
+
+    branches.push_back({.pointer = std::move(branch_pointer)});
+  }
+
+  return IRUnion{{.pointer = sourcemeta::core::to_pointer(location.pointer)},
+                 std::move(branches)};
+}
+
 auto handle_ref(const sourcemeta::core::JSON &schema,
                 const sourcemeta::core::SchemaFrame &frame,
                 const sourcemeta::core::SchemaFrame::Location &location,
@@ -390,6 +417,11 @@ auto default_compiler(const sourcemeta::core::JSON &schema,
                        subschema);
   } else if (subschema.defines("anyOf")) {
     return handle_anyof(schema, frame, location, vocabularies, resolver,
+                        subschema);
+    // This is usually a good enough approximation. We usually can't check that
+    // the other types DO NOT match, but that is in a way a validation concern
+  } else if (subschema.defines("oneOf")) {
+    return handle_oneof(schema, frame, location, vocabularies, resolver,
                         subschema);
   } else if (subschema.defines("$ref")) {
     return handle_ref(schema, frame, location, vocabularies, resolver,
